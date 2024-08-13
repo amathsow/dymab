@@ -58,6 +58,7 @@ python run_script.py or
 python main.py with graphical interface
 ```
 ![TASK](/simulation/image/main.png)
+<img src="/simulation/image/main.png">
 
 The statistics(cvs file) is located in ```/simulation/image/```
 
