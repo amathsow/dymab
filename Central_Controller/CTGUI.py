@@ -18,6 +18,7 @@ from PyQt5.QtCore import QRectF,QPointF,QLineF
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox, QInputDialog
 from Central_Controller.EnvCluster import *
+from Central_Controller.EnvCluster_Kmeans import *
 from utils.plot import *
 import os
 import subprocess
