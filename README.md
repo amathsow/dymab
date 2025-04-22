@@ -49,7 +49,15 @@ To run the code, we will use  MAPF instances from the MAPF benchmark (https://mo
 | initialEpsilon             | Initial exploration rate for the DyMAB($\epsilon$-Greedy) policy               |
 
 
+## Experiments reproduction
 
+You can run the experiments with the following command:
+```
+./run_sum_delay_vs_number_agents.sh 
+./run_sum_delay_vs_windows.sh
+./run_sum_delay_vs_neighborhoodsize.sh
+./run_neighborhood_vs_number_agents.sh
+```
 
 ## Credits
 
