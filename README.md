@@ -1,7 +1,6 @@
-# C-DyMAB: Anytime Cluster-Based Multi-Agent Path Planning Using Non-Stationary Multi-Armed Bandit and Adaptive Large Neighborhood Search
+# DyMAB: Anytime Multi-Agent Path Planning Using Non-Stationary Multi-Armed Bandit and Adaptive Large Neighborhood Search
 
-C-DyMAB (Cluster-Based Dynamic Multi-Armed Bandit for Neighborhood Selection), a novel anytime algorithm for MAPF problems. C-DyMAB integrates dynamic high-level clustering based on agent positions with low-level
-path optimization using Non-Stationary MAB and ALNS.
+DyMAB, a novel anytime algorithm for MAPF problems that integrates non-stationary (dynamic) multi-armed bandit (MAB) framework into Adaptive Large Neighborhood Search (ALNS). Using a windowed Queue of size W to track recent rewards, DyMAB efficiently adapts neighborhood selection at each step, ensuring that the most effective heuristic is used.
 
 We have implemented 2 versions of DyMAB tailored for Non-sationnary MAB : DyMAB($\alpha$-UCB) and DyMAB($\epsilon$-Greedy)
 
@@ -19,19 +18,19 @@ cd ${HOME}/git && git clone <repository's link>
 ```
 2. Move to project directory and install requirements.txt
 ```
-cd ${HOME}/dymab && pip install -r requirements.txt
+cd ${HOME}/dymab
 ```
-3. Then Move to  models/cluster-MAPF/dymab-mapf
+3. Then build the project
 ```
 cmake -DCMAKE_BUILD_TYPE=RELEASE .
 make
 ```
 
-## Run the code without clustering(DyMAB)
+## Run DyMAB
 To run the code, we will use  MAPF instances from the MAPF benchmark (https://movingai.com/benchmarks/mapf/index.html). In particular, the format of the scen files is explained here: https://movingai.com/benchmarks/formats.html.
 
 ```
-./dymab -m Berlin_1_256.map -a Berlin_1_256-random-1.scen -o test -k 500 -t 120 --outputPaths=paths.txt --banditAlgo=AlphaUCB --neighborCandidateSizes=5 --seed=0 --alphaUCB=10000 --decayWindow=100 --lambdaDecay=10 --initialEpsilon=0.5
+./dymab -m Berlin_1_256.map -a Berlin_1_256-random-1.scen -o test -k 500 -t 60 --outputPaths=paths.txt --banditAlgo=AlphaUCB --neighborCandidateSizes=5 --seed=0 --alphaUCB=10000 --decayWindow=100 --lambdaDecay=10 --initialEpsilon=0.5
 ```
 | Tab                        | Description                                                                    |
 | :---                       | :---:                                                                          |
@@ -39,9 +38,10 @@ To run the code, we will use  MAPF instances from the MAPF benchmark (https://mo
 | a                          | the scenario file                                                              |
 | o                          | the output file name                                                           |
 | k                          | the number of agents                                                           |
+| t                          | the time limit                                                                 |
 | outputPaths                | the output file that contains the paths                                        |
-| banditAlgo                 | the MAB algorithm used(AlphaUCB, EpsilonGreedy)                                |
-| neighborCandidateSizes     | the number of neighborhood size(fixed to 5)                                    |
+| banditAlgo                 | the MAB algorithm used(DyMAB($\alpha$-UCB) and DyMAB($\epsilon$-Greedy))       |
+| neighborCandidateSizes     | the number of neighborhood size                                   |
 | seed                       | the random seed                                                                |
 | alphaUCB                   | exploration parameter for DyMAB($\alpha$-UCB) policy                           |
 | decayWindow                | Capacity of the sliding window                                                 |
@@ -49,21 +49,6 @@ To run the code, we will use  MAPF instances from the MAPF benchmark (https://mo
 | initialEpsilon             | Initial exploration rate for the DyMAB($\epsilon$-Greedy) policy               |
 
 
-## Run the code with clustering(C-DyMAB)
-
-1. Move the main directory of the project 
-```
-cd simulation
-python run_script.py or 
-python main.py with graphical interface
-```
-![](simulation/image/main.png)
-
-The statistics(cvs file) is located in ```/simulation/image/```
-
-## Demo in our NewCity Map
-
-![GIF](/simulation/image/demo.gif)
 
 
 ## Credits

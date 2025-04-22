@@ -1,0 +1,3 @@
+/home/amath/Desktop/dymab/CMakeFiles/dymab.dir
+/home/amath/Desktop/dymab/CMakeFiles/edit_cache.dir
+/home/amath/Desktop/dymab/CMakeFiles/rebuild_cache.dir
