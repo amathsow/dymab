@@ -634,21 +634,22 @@ bool LNS::generateNeighborBySynchroizedRandomWalk()
     synchronizedRandomWalk(seed_agents, neighbors_set, neighbor_size);
 
     // If we still need more agents, perform additional walks
-    int attempts = 0;
-    while (neighbors_set.size() < neighbor_size && attempts < 10)
-    {
+    //int attempts = 0;
+    //while (neighbors_set.size() < neighbor_size && attempts < 10)
+    //{
+    //    cout << "Attempting to find more agents by random walk..." << endl;
         // Select random agents from current set as new seeds
-        vector<int> new_seeds;
-        vector<int> current_agents(neighbors_set.begin(), neighbors_set.end());
-        for (int i = 0; i < min(2, (int)current_agents.size()); i++)
-        {
-            int idx = rand() % current_agents.size();
-            new_seeds.push_back(current_agents[idx]);
-        }
+    //    vector<int> new_seeds;
+    //    vector<int> current_agents(neighbors_set.begin(), neighbors_set.end());
+    //    for (int i = 0; i < min(2, (int)current_agents.size()); i++)
+    //    {
+    //        int idx = rand() % current_agents.size();
+    //        new_seeds.push_back(current_agents[idx]);
+    //    }
         
-        synchronizedRandomWalk(new_seeds, neighbors_set, neighbor_size);
-        attempts++;
-    }
+    //    synchronizedRandomWalk(new_seeds, neighbors_set, neighbor_size);
+    //    attempts++;
+    //}
 
     if (neighbors_set.size() < 2)
         return false;
@@ -677,8 +678,7 @@ void LNS::synchronizedRandomWalk(const vector<int>& seed_agents, set<int>& confl
     }
 
     // Simply use number of agents as the step limit
-    int max_steps = agents.size();  // Direct and simple
-
+    int max_steps = agents.size();  
     // Track progress
     int steps_since_last_find = 0;
     const int MAX_STEPS_WITHOUT_IMPROVEMENT = max_steps/2; // Adjust early stopping based on num agents
