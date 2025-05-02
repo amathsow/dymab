@@ -1,10 +1,9 @@
-# DyMAB: Anytime Multi-Agent Path Planning Using Non-Stationary Multi-Armed Bandit and Adaptive Large Neighborhood Search
+# DyMAB: Adaptive neighbourhood selection for MAPF via non-stationary bandits
 
-DyMAB, a novel anytime algorithm for MAPF problems that integrates non-stationary (dynamic) multi-armed bandit (MAB) framework into Adaptive Large Neighborhood Search (ALNS). Using a windowed Queue of size W to track recent rewards, DyMAB efficiently adapts neighborhood selection at each step, ensuring that the most effective heuristic is used.
+DyMAB, a novel anytime algorithm for MAPF problems that integrates non-stationary (dynamic) multi-armed bandit (MAB) framework into Adaptive Large Neighbourhood Search (ALNS). Using a windowed Queue of size W to track recent rewards, DyMAB efficiently adapts neighbourhood selection at each step, ensuring that the most effective heuristic is used.
 
 We have implemented 2 versions of DyMAB tailored for Non-sationnary MAB : DyMAB($\alpha$-UCB) and DyMAB($\epsilon$-Greedy)
 
-Note: The code is based on Balance-MAPF implementation(https://github.com/thomyphan/anytime-mapf).
 
 
 The code require `Python 3.10` and external C++ libraries [`BOOST 1.81.0`](https://www.boost.org/) and [`Eigen 3.3`](https://eigen.tuxfamily.org/), and [`CMake`](https://cmake.org)
@@ -63,10 +62,8 @@ You can run the experiments with the following command:
 
 The software is mainly based on code developed by T. Phan and al. in [Balance](https://github.com/thomyphan/anytime-mapf).
 
-The rule-based MAPF solvers (i.e., PPS, PIBT, and winPIBT) inside the software were borrowed from 
-https://github.com/Kei18/pibt/tree/v1.3
 
-C-DyMAB is released under MiT License. See license.txt for further details.
+DyMAB is released under MiT License. See license.txt for further details.
 
 ## References
 
