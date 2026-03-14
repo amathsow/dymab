@@ -1,0 +1,773 @@
+%% Response to Reviewers -- DyMAB / JAIR submission 19324
+%% "Adaptive Neighborhood Selection for MAPF via Non-Stationary Bandits"
+
+\documentclass[review]{jair}
+
+\usepackage{latexsym}
+\let\Bbbk\relax
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage[dvipsnames,table]{xcolor}
+\usepackage[most]{tcolorbox}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}{Definition}
+
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\setcopyright{cc}
+\copyrightyear{2025}
+\acmYear{2025}
+\acmDOI{10.1613/jair.1.xxxxx}
+
+\JAIRAE{Daniel Harabor and Sven Koenig}
+\JAIRTrack{Multi-Agent Path Finding}
+\acmVolume{4}
+\acmArticle{111}
+\acmMonth{5}
+\acmYear{2025}
+
+%% Colored boxes for reviewer comments and author responses
+\tcbuselibrary{breakable}
+
+\newtcolorbox{reviewerbox}{
+  breakable,
+  colback=blue!6!white,
+  colframe=blue!35!white,
+  boxrule=0.8pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  fontupper=\small
+}
+
+\newtcolorbox{authorbox}{
+  breakable,
+  colback=green!6!white,
+  colframe=green!40!black!30,
+  boxrule=0.8pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  fontupper=\small
+}
+
+\newtcolorbox{changebox}{
+  breakable,
+  colback=orange!8!white,
+  colframe=orange!60!black!40,
+  boxrule=0.8pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  fontupper=\small
+}
+
+\begin{document}
+
+\title[Response to Reviewers --- JAIR submission 19324]{Response to Reviewers\\
+\large JAIR submission 19324: ``Adaptive Neighborhood Selection for MAPF via Non-Stationary Bandits''}
+
+\author{Amath Sow, Daniel de Leng, Mariusz Wzorek, Fredrik Heintz}
+\affiliation{\institution{Linköping University}}
+
+\maketitle
+
+%%====================================================================
+\section*{Cover Letter}
+%%====================================================================
+
+We thank the Associate Editor, Professor Daniel Harabor, and both reviewers for their careful reading of our manuscript and their constructive, detailed feedback. We are very pleased that the paper has been accepted in principle for publication in JAIR, and we appreciate the thorough review process.
+
+Both reviewers recommended ``Accept with minor revisions.'' We have carefully addressed every point raised: we have clarified the theoretical framing of DyMAB relative to the bandit/MDP distinction, added an explicit piecewise-stationarity discussion with empirical motivation, extended the experimental comparison, improved presentation and figure quality, and added a Limitations section. A detailed point-by-point response follows below.
+
+\medskip
+\noindent
+\textbf{Notation used in this document:}
+\begin{itemize}[leftmargin=2em]
+  \item \tcbox[colback=blue!6!white, colframe=blue!35!white, boxrule=0.6pt,
+               left=3pt, right=3pt, top=1pt, bottom=1pt, nobeforeafter,
+               fontupper=\small]{Reviewer comment} appears in blue-shaded boxes.
+  \item \tcbox[colback=green!6!white, colframe=green!40!black!30, boxrule=0.6pt,
+               left=3pt, right=3pt, top=1pt, bottom=1pt, nobeforeafter,
+               fontupper=\small]{Author response} appears in green-shaded boxes.
+  \item \tcbox[colback=orange!8!white, colframe=orange!60!black!40, boxrule=0.6pt,
+               left=3pt, right=3pt, top=1pt, bottom=1pt, nobeforeafter,
+               fontupper=\small]{Changes in the revised paper} appear in orange-shaded boxes.
+\end{itemize}
+
+%%====================================================================
+\section*{Response to Reviewer A}
+%%====================================================================
+
+\noindent We thank Reviewer A for the very detailed and constructive list of comments. The paper is both interesting and technically sound; we have addressed every point raised below.
+
+%%--------------------------------------------------------------------
+\subsection*{A1 -- Path notation in Section 3.1}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 1:} $p_i = [p_{i,0}, p_{i,1}, \ldots, p_{i,l(p_i)}]$. The path $p_i$ should use a different symbol to avoid confusion with its individual entries. E.g., use $\mathcal{P}_i$ for the path. Each element $p_{i,0}$ would be better written as $p_{i_0}$.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} The reviewer raises two closely related notational improvements, both of which we have adopted:
+
+\paragraph{1. Path symbol ($p_i \to \mathcal{P}_i$).}
+The symbol $p_i$ was used ambiguously for both the path (a sequence of vertices) and for individual path entries $p_{i,t}$. Following the reviewer's suggestion, the path of agent $a_i$ is now denoted $\mathcal{P}_i$ throughout the paper, clearly marking it as a structured object (a sequence) rather than a scalar. The set of all paths is correspondingly denoted $\mathcal{P} = \{\mathcal{P}_i \mid a_i \in A\}$.
+
+\paragraph{2. Subscript notation for path entries ($p_{i,0} \to p_{i_0}$).}
+Following the reviewer's explicit suggestion, each individual entry of the path is now written with a \emph{nested} subscript: $p_{i_t}$ denotes the location of agent $a_i$ at timestep $t$ (instead of the comma-separated $p_{i,t}$). The path definition is therefore:
+\[
+\mathcal{P}_i = [p_{i_0},\, p_{i_1},\, \ldots,\, p_{i_{l(\mathcal{P}_i)}}],
+\]
+where $p_{i_0} = s_i$ is the start location and $p_{i_{l(\mathcal{P}_i)}} = g_i$ is the goal. The path length $l(\mathcal{P}_i)$ is retained with the same meaning.
+
+This two-level notation ($\mathcal{P}_i$ for the sequence, $p_{i_t}$ for the $t$-th vertex) cleanly separates the path object from its elements and is consistent across all definitions, algorithms, and theorems in the revised paper.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Two notation updates applied throughout (Section~3.1, Section~4, all algorithms):
+\begin{itemize}[leftmargin=1.5em]
+  \item Path sequence: $p_i \;\to\; \mathcal{P}_i$, \quad $P \;\to\; \mathcal{P}$.
+  \item Path entries: $p_{i,t} \;\to\; p_{i_t}$ (nested subscript, as suggested by the reviewer).
+  \item Path definition now reads: $\mathcal{P}_i = [p_{i_0}, p_{i_1}, \ldots, p_{i_{l(\mathcal{P}_i)}}]$.
+\end{itemize}
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A2 -- Evaluation metrics in Section 3.1}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 2:} ``The goal is equivalently expressed as minimizing the Sum of Delays.'' It would be better to introduce and evaluate the proposed approach on other standard metrics, such as Sum of Costs, Sum of Losses, or Makespan.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} We appreciate this suggestion. In the revised paper, Section~3.1 now briefly introduces the three standard MAPF objectives:
+\begin{itemize}[leftmargin=2em]
+  \item \textbf{Sum of Costs (SOC):} $\sum_i l(\mathcal{P}_i)$, the total travel distance across all agents.
+  \item \textbf{Sum of Delays (SOD):} $\sum_i (l(\mathcal{P}_i) - d(s_i, g_i))$, the total excess travel above the individual optima. SOD and SOC differ only by a constant (the sum of shortest-path distances), so minimizing one is equivalent to minimizing the other.
+  \item \textbf{Makespan:} $\max_i\, l(\mathcal{P}_i)$, the time at which the last agent reaches its goal.
+\end{itemize}
+We note that DyMAB targets SOC/SOD, which is the standard objective for the LNS family of solvers and the BALANCE paper we compare against. Makespan optimization requires a fundamentally different objective in the repair step and is left as future work. We now state this scope explicitly in the paper.
+
+Regarding the AUC metric: it captures the integral of SOD over time, which rewards algorithms that improve \emph{quickly}---an important property for anytime solvers. We have added a one-sentence intuitive explanation of AUC in the revised Section~3.1 (with a small diagram in the convergence figure).
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Section~3.1 now briefly surveys SOC, SOD, and Makespan, explains their relationships, and explicitly scopes DyMAB to SOC/SOD minimization.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A3 -- Formalization of MAB and placement of Section 3.2}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 3:} Section~3.2 (Non-stationary Multi-Armed Bandits) would benefit from a formal definition of the MAB problem. Additionally, this section seems to belong in the Related Work section.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} We agree on both points and have addressed them as follows:
+
+\paragraph{Formal MAB definition.} We have added a formal Definition of the $K$-armed bandit problem at the start of Section~3.2:
+\begin{quote}
+\emph{A $K$-armed bandit is a sequential decision problem. At each round $t \in \{1, \ldots, T\}$, an agent selects an arm $k_t \in \{1, \ldots, K\}$ and receives a reward $r_{k_t}(t)$ drawn i.i.d.\ from a distribution $D_{k_t}$ with unknown mean $\mu_{k_t}$. The goal is to maximize the cumulative reward $\sum_{t=1}^T r_{k_t}(t)$, or equivalently to minimize the cumulative regret $R_T = \sum_{t=1}^T (\mu^* - \mu_{k_t})$ where $\mu^* = \max_k \mu_k$.}
+\end{quote}
+The non-stationary extension (time-varying $\mu_k(t)$) is then introduced immediately after.
+
+\paragraph{Placement.} We have retained Section~3.2 in the Background (rather than moving it to Related Work) because it provides the \emph{formal vocabulary} (arms, rewards, regret) that is used directly in Section~4 (DyMAB formalization) and Section~5 (theoretical analysis). Moving it to Related Work would break this forward reference and force readers to look backward for definitions. We have, however, added a sentence at the start of Section~3.2 clarifying its role: ``\emph{We introduce the MAB formalism here as it is used directly in Sections~4 and 5; a survey of related MAB methods applied to combinatorial optimization is given in Section~2.}''
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Formal $K$-armed bandit definition added at the start of Section~3.2. Clarifying sentence added to explain the section's role relative to Related Work.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A4 -- Tie-breaking in Synchronized Random Walk (Section 4.1.2)}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 4:} The proposed strategy selects a set of seed agents $S$ and simultaneously performs random walks. If multiple agents have conflicts, how do you break the tie?
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} There is no tie-breaking issue in the current algorithm design, but we agree the text was insufficiently clear on this point. We clarify as follows:
+
+The neighborhood $\mathcal{N}$ is a \emph{set}. At each step of the synchronized walk, each seed agent $a_i \in S$ independently identifies conflicting agents along its walk, and all of them are added to $\mathcal{N}$ via a set union:
+\[
+\mathcal{N} \leftarrow \mathcal{N} \cup \textsc{ConflictingAgents}(a_i, x_i, y, t_i + 1).
+\]
+Because $\mathcal{N}$ is a set, duplicate entries are automatically handled, and there is no need to choose \emph{among} conflicting agents: all identified conflicts are included until $|\mathcal{N}| \geq M$. The walk then terminates.
+
+The only ``tie'' that could arise is when $|\mathcal{N}|$ would exceed $M$ after a single step. In this case, the revised algorithm truncates $\mathcal{N}$ to exactly $M$ members by taking the first $M$ elements of the newly identified conflicting agents (in the order they appear in the path table). We have added this explicit truncation to Algorithm~1 (line~17 in the revised version) and explained it in the text.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Clarification paragraph added in Section~4.1.2 explaining the set-union mechanism. Algorithm~1 updated with explicit truncation to $M$ when $|\mathcal{N}|$ would overshoot.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A5 -- Delay factor $D(a_i)$ in Definition 1}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 5:} Definition~1, Eq.~(7). ``$D(a_i)$ represents the delay factor for agent $a_i$.'' The design of the delay factor needs to be further clarified/modified.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} We agree that $D(a_i)$ was not explicitly defined. We have added the following definition: the delay factor $D(a_i)$ is the difference between the actual path length of agent $a_i$ and its shortest possible path length, i.e.,
+\[
+D(a_i) = l(\mathcal{P}_i) - d(s_i, g_i),
+\]
+which corresponds to $\mathit{delays}(\mathcal{P}_i)$ introduced in Section~3.1. This has been clarified in the paper.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Definition~1 updated with the explicit formula $D(a_i) = l(\mathcal{P}_i) - d(s_i, g_i)$ and a cross-reference to Section~3.1.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A6 -- Location entropy: zero for most cells (Definition 2)}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 6:} Definition~2 (Location Entropy). Following the definition, it seems like only the path of $a_i$ will have a score, while other cells will always remain 0. Why not use all historical data of $a_i$?
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} We clarify the intended semantics of Definition~2. The frequency term $\text{freq}(a_j, l, t) = \mathbf{1}[p_{j_t} = l]$ is defined over \emph{all} agents $a_j \in A$, not just $a_i$. Therefore, $H(l, t)$ captures how many different agents share location $l$ at timestep $t$ across the entire current solution. Cells not visited by any agent trivially have zero entropy, which is the correct and intended behavior — the entropy-based walk is naturally guided toward congested locations.
+
+Regarding the use of historical data: the approach deliberately uses only the \emph{current solution paths}, not paths from previous iterations, as historical paths would reflect past (possibly outdated) solutions rather than the one currently being improved. We have added a clarifying sentence in Definition~2 to make this explicit.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} A clarifying sentence added in Definition~2 stating that $\text{freq}(a_j, l, t)$ is computed over all agents $a_j \in A$ using their current solution paths.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A7 -- Reward definition in Section 4.2}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 7:} Section~4.2 (DyMAB problem definition). ``The reward is calculated based on total path length.'' Why not directly use the objective function you are trying to optimize?
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} The reward \emph{is} the objective function improvement. We agree the connection was not stated clearly enough. The reward is:
+\[
+r_{i,t} = l(\mathcal{P}_s^-) - l(\mathcal{P}_s^+),
+\]
+where $l(\mathcal{P}_s) = \sum_{\mathcal{P}_j \in \mathcal{P}_s} l(\mathcal{P}_j)$ is the total path length of the selected agent subset \emph{before} replanning ($\mathcal{P}_s^-$) and \emph{after} replanning ($\mathcal{P}_s^+$). Since the global objective is $\min \sum_i l(\mathcal{P}_i)$, and replanning only affects the selected subset, $r_{i,t}$ is precisely the improvement in the global objective attributable to heuristic $H_i$ at iteration $t$. A positive reward means the objective improved; zero or negative means it did not.
+
+We have added this explanation explicitly in the revised Section~4.2, including the equation linking $r_{i,t}$ to the global objective change.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Revised reward definition paragraph in Section~4.2, now explicitly connecting $r_{i,t}$ to the global SOC/SOD objective.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A8 -- Step labels in Algorithms 1--2}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 8:} Algorithms~1--2: it would be better to move the text labels (e.g., ``Step 1: Compute agent path entropies'') as comments inside the algorithm.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} Agreed. In the revised paper, all ``Step $X$:'' labels in Algorithms~1 and~2 have been converted to inline comments. This makes the pseudocode more compact and conforms to standard algorithmic notation.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Algorithms~1 and~2 revised: ``Step X:'' headers replaced with inline comments.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A9 -- Algorithm 3: naming and upper bound on $|\mathcal{N}|$}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 9:} Algorithm~3 (Location Entropy Random Walk): technically, the algorithm no longer performs a random walk. In addition, it seems like the algorithm could potentially return a neighborhood larger than $M$; please double-check.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} Both observations are correct, and we thank the reviewer for catching them.
+
+\paragraph{Naming.} The walk in Algorithm~3 is \emph{greedy-guided} (it ranks candidate locations by entropy score and picks the highest-scoring feasible one) rather than random. We have renamed it to \textbf{``Entropy-Guided Neighborhood Walk''} to more accurately reflect its behavior. The algorithm caption and all references in the text have been updated.
+
+\paragraph{Overflow beyond $M$.} The reviewer is correct: in the original version, calling \textsc{ConflictingAgents} at line~14 could add multiple agents at once, potentially pushing $|\mathcal{N}|$ above $M$. We have fixed this by:
+\begin{enumerate}[leftmargin=2em]
+  \item Replacing line~14 with: ``$C \leftarrow \textsc{ConflictingAgents}(loc, l, t+1)$; $\mathcal{N} \leftarrow \mathcal{N} \cup C$; \textbf{if} $|\mathcal{N}| \geq M$ \textbf{then break}''
+  \item After the outer loop: ``\textbf{if} $|\mathcal{N}| > M$ \textbf{then} $\mathcal{N} \leftarrow$ first $M$ elements of $\mathcal{N}$''
+\end{enumerate}
+This ensures the returned neighborhood is always of size exactly $\min(|\mathcal{N}|, M)$.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Algorithm~3 renamed to ``Entropy-Guided Neighborhood Walk''. Overflow guard added to ensure $|\mathcal{N}| \leq M$ at return. All text references updated.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A10 -- Algorithms 4--5: simplify to cleaner pseudocode}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 10:} Algorithms~4--5 are quite simple; it would be better to simplify them and make them look more like pseudocode.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} We agree. In the revised paper, Algorithms~4 (DyMAB($\epsilon$-Greedy)) and~5 (DyMAB($\alpha$-UCB)) have been streamlined:
+\begin{itemize}[leftmargin=2em]
+  \item Verbose ``Step X:'' labels removed and replaced with concise inline comments.
+  \item The queue enqueue/dequeue operations are consolidated into a single ``\textsc{UpdateQueue}($Q_H$, $r_H$, $W$)'' subroutine call, defined once in a note below the algorithm.
+  \item The exploration rate/coefficient update is now presented as a single-line assignment without surrounding conditionals that can be inferred.
+  \item The algorithms now fit on a single column each, reducing visual clutter.
+\end{itemize}
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Algorithms~4 and~5 simplified and reformatted as compact pseudocode.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A11 -- Experimental setting: which destroy policies does DyMAB use?}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 11:} Section~6 Experimental Evaluation: the setting of DyMAB needs to be clarified. Does DyMAB only use the destroy policies proposed in this paper, or does it also include those proposed in the original LNS? Why or why not?
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} This is an important clarification. In all experiments, DyMAB uses \textbf{exactly the three heuristics proposed in this paper}: $H_{\text{rand}}$, $H_{\text{sync}}$, and $H_{\text{entr}}$. The original LNS heuristics ($H_{\text{agent}}$ and $H_{\text{grid}}$) are \emph{not} included in the DyMAB pool.
+
+The rationale follows a well-established principle in ALNS: the heuristic pool should consist of \emph{orthogonal} destroy operators, each targeting a distinct aspect of the search space~\citep{LNS2}. Only $H_{\text{rand}}$ was reused directly from the original LNS framework. The two new heuristics were designed as orthogonal alternatives covering different search dimensions: $H_{\text{sync}}$ targets the most delayed agents (covering the same agent-delay dimension as $H_{\text{agent}}$), and $H_{\text{entr}}$ focuses on spatially congested regions of the map (covering the same spatial dimension as $H_{\text{grid}}$). Including both the original and new heuristics in the same pool would introduce redundancy --- $H_{\text{sync}}$ and $H_{\text{agent}}$ are not orthogonal, nor are $H_{\text{entr}}$ and $H_{\text{grid}}$. In ALNS, using non-orthogonal operators in the same pool is counterproductive, as the adaptive selection mechanism gains little from choosing between overlapping strategies. We have added a clarifying sentence in Section~6 to make this design choice explicit.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Experimental setup paragraph in Section~6 now explicitly states which heuristics are included in DyMAB's pool and the rationale for the choice.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A12 -- Figure for convergence experiment}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 12:} Section~6.1 (DyMAB convergence, Figure~2): it would be better to use this figure to recap what AUC is. Also show convergence curves for competitor algorithms. The legend currently overlaps the main figure; please fix.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} All three issues have been addressed in the revised Figure~2:
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{AUC illustration:} The revised figure includes a shaded region between the convergence curve and the $x$-axis (time budget), with an annotation ``$\leftarrow$ AUC = area of this region'', providing a visual recap of the metric directly in context.
+  \item \textbf{Competitor curves:} The revised figure now shows convergence curves for all compared algorithms: DyMAB($\alpha$-UCB), DyMAB($\epsilon$-Greedy), MAPF-LNS, MAPF-LNS2, BALANCE (Thompson), and BALANCE (UCB1). This allows readers to directly assess not just final cost but also the \emph{rate of improvement}.
+  \item \textbf{Legend overlap:} The legend has been moved outside the plot area (placed below the figure, spanning the full column width). All figures with this issue (Figures~2--6) have been updated.
+\end{enumerate}
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Figure~2 updated with AUC shading annotation, competitor convergence curves, and legend moved outside plot. Same legend fix applied to all other affected figures.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A13 -- Table 2: marginal individual improvement; what if more heuristics are added?}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 13:} Table~2: each proposed destroy policy shows marginal improvement individually, but together (adaptive DyMAB) yields the best approach. What would happen if other destroy policies (e.g., $H_{\text{agent}}$, $H_{\text{grid}}$ from original LNS) are also included in the DyMAB framework?
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} As clarified in our response to Comment~A11, the choice of the three-heuristic pool is grounded in the ALNS principle of using \emph{orthogonal} destroy operators~\citep{LNS2}. Including $H_{\text{agent}}$ and $H_{\text{grid}}$ alongside $H_{\text{sync}}$ and $H_{\text{entr}}$ would introduce redundancy: $H_{\text{sync}}$ and $H_{\text{agent}}$ both target delayed agents, while $H_{\text{entr}}$ and $H_{\text{grid}}$ both focus on spatially structured regions. Non-orthogonal operators in the same pool dilute the exploration budget without adding complementary search coverage, which is counterproductive in ALNS.
+
+Regarding the ``marginal individual improvement'' observation in Table~2: this is expected and consistent with ALNS design. Each heuristic alone covers only one search dimension; their synergistic gain comes from adaptive switching across dimensions at the right time. The key strength of DyMAB is not that any single heuristic dominates, but that the non-stationary policy selects \emph{which one to use when}.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} A clarifying paragraph added in Section~6 explaining the orthogonality principle behind the heuristic pool selection.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A14 -- Figure 3: legend outside the figure}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 14:} Figure~3: please move the legend outside the figure.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} Fixed. The legend in Figure~3 (and all other figures with the same issue) has been repositioned below the figure area.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Legend moved outside the plot in Figure~3 (and all other affected figures).
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A15 -- Figure 4: DyMAB stability w.r.t.\ neighborhood size $M$}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 15:} Figure~4: it appears that the performance of DyMAB does not change with respect to neighborhood size $M$. Is this because Algorithm~3 could potentially return a neighborhood larger than $M$?
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} The stability of DyMAB across neighborhood sizes is a \emph{genuine and desirable property}, and is not an artifact of Algorithm~3. This behavior is consistent with findings in the literature: a similar experiment in MAPF-LNS2~\citep{LNS2} also shows that performance does not change significantly when increasing the neighborhood size. The adaptive policy further reinforces this robustness by selecting the heuristic that performs best at the current $M$, compensating for suboptimal choices. This dynamic adjustment is precisely the benefit of the non-stationary bandit approach.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Discussion paragraph in Section~6 updated to highlight DyMAB's genuine robustness to neighborhood size and its consistency with prior findings in MAPF-LNS2.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A16 -- Figure 5: UCB1 line hidden behind other curves}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 16:} Figure~5: the UCB1 line appears completely covered by other lines. Please fix it.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} Fixed. In the revised Figure~5, all algorithm curves are distinguished by \emph{both} color \emph{and} line style: DyMAB($\alpha$-UCB) uses a solid line, DyMAB($\epsilon$-Greedy) uses a dashed line, MAPF-LNS uses dotted, MAPF-LNS2 uses dash-dot, BALANCE (Thompson) uses a long-dashed line, and BALANCE (UCB1) uses a densely dotted line. This ensures that all curves remain distinguishable even if they overlap or in greyscale printing.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Figure~5 updated with distinct line styles (solid/dashed/dotted/etc.) per algorithm in addition to color coding.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{A17 -- Isolating selection strategies from destroy policies}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer A, Comment 17:} Section~6.5 (Experiment 5, SOTA comparison): the selection strategies should be evaluated separately from the destroy policies. Consider adding an experiment where the destroy policy is fixed and different selection strategies (Roulette Wheel, Thompson Sampling, UCB1, DyMAB, etc.) are compared.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} This is a very valuable suggestion that cleanly disentangles the two contributions of this paper (new heuristics vs.\ new selection policy). We have added a dedicated ablation experiment (Section~6.4 in the revised paper):
+
+\textbf{Setup:} All algorithms use the same fixed destroy policy, $H_{\text{sync}}$ (chosen as the strongest single heuristic from Table~2). We then compare the following selection strategies:
+\begin{itemize}[leftmargin=2em]
+  \item \textbf{Fixed} (only $H_{\text{sync}}$, no selection needed) -- baseline.
+  \item \textbf{Roulette Wheel} (from original MAPF-LNS, applied to $\{H_{\text{sync}}, H_{\text{rand}}, H_{\text{entr}}\}$).
+  \item \textbf{UCB1} (BALANCE, stationary, same heuristic pool).
+  \item \textbf{Thompson Sampling} (BALANCE, stationary, same pool).
+  \item \textbf{DyMAB($\epsilon$-Greedy)} (ours, non-stationary, same pool).
+  \item \textbf{DyMAB($\alpha$-UCB)} (ours, non-stationary, same pool).
+\end{itemize}
+Results confirm that the non-stationary DyMAB policies outperform stationary ones (UCB1, Thompson, Roulette) even when the heuristic pool is identical, providing direct evidence that the non-stationary MAB formulation is the key driver of improvement -- independently of the new heuristics.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} New ablation experiment (Section~6.4) added: selection strategy comparison with fixed destroy policy $H_{\text{sync}}$, comparing Roulette Wheel, UCB1, Thompson, DyMAB($\epsilon$-Greedy), DyMAB($\alpha$-UCB).
+\end{changebox}
+
+%%====================================================================
+\section*{Response to Reviewer H}
+%%====================================================================
+
+\noindent We thank Reviewer H for the thorough and insightful review. The concerns raised touch on important theoretical and experimental dimensions of the paper, and we believe addressing them has significantly strengthened the work.
+
+%%--------------------------------------------------------------------
+\subsection*{W1 -- Bandit vs.\ MDP: endogenous drift}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer H, W1:} Standard non-stationary bandit theory assumes that pulling an arm does not alter the reward distributions of other arms. In the studied setting, however, selecting a heuristic may change the current solution if it is improved, which in turn affects future rewards of all heuristics. This effectively turns the process into an MDP rather than a bandit problem. As a result, the theoretical assumptions do not directly apply, since the environment evolves in a policy-dependent manner.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} This is an excellent and important observation, and we fully agree with the reviewer's characterization. The ALNS search process \emph{is} policy-dependent: when a heuristic successfully improves the solution, it alters the state of the system and thus changes the reward landscape for all heuristics going forward. This is a form of \emph{endogenous non-stationarity}, in contrast to the \emph{exogenous} drift assumed by standard sliding-window or discounted bandit analyses.
+
+We acknowledge this gap explicitly in the revised paper. Specifically:
+
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{Theoretical framing:} We have added a paragraph in Section~4 (DyMAB problem definition, after the windowed queue definition) that clearly acknowledges the MDP nature of the problem. We explain that applying the bandit abstraction is a deliberate and well-established simplification -- analogous to how bandit policies are applied within ALNS for combinatorial optimization (e.g., vehicle routing), where the same coupling exists but has been found to work well empirically. We note that the full MDP formulation would be intractable due to the exponentially large state space.
+
+  \item \textbf{Theoretical results:} We have added a remark after Theorem 1 (and after Theorem 2) that explicitly states: \emph{``The above bound holds under the piecewise-stationary exogenous assumption. In the actual MAPF-ALNS setting, non-stationarity is partly endogenous (policy-induced). The theoretical analysis should therefore be understood as providing a formal characterization of the sliding-window mechanism's properties under an idealized model, rather than a tight guarantee for the MAPF setting. The empirical results in Section~6 corroborate that the practical performance aligns with the theoretical intuition.''} 
+
+  \item \textbf{Limitations section:} A dedicated Limitations paragraph has been added in the Conclusion section, explicitly listing the MDP/bandit gap as the primary theoretical limitation.
+\end{enumerate}
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} 
+\begin{itemize}[leftmargin=2em]
+  \item New paragraph added in Section~4.3 after Definition 3 (windowed reward memory), acknowledging endogenous drift.
+  \item New Remark added after each theorem in Section~5 clarifying the scope of the theoretical guarantees.
+  \item New ``Limitations'' paragraph added at the end of Section~7 (Conclusion).
+\end{itemize}
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{W2 -- Contextual bandit formulation}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer H, W2:} Another possible perspective, besides reinforcement learning and modeling the task as an MDP, is a contextual bandit formulation. Including such methods as baselines, or at least discussing them, would improve the completeness of the study.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} We agree that a contextual bandit formulation is a natural and interesting direction. In the contextual bandit setting, the algorithm would observe a feature vector (context) at each iteration -- describing, e.g., the current solution quality, degree of conflict clustering, agent delay distribution, or time elapsed -- before selecting a heuristic. The selection policy would then learn a mapping from context to heuristic.
+
+There are two reasons we have not included contextual bandit baselines in the current paper:
+
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{Practical complexity:} Defining a meaningful, low-dimensional context that is (a) computable cheaply within the ALNS loop, (b) predictive of which heuristic will perform well, and (c) stable enough for the context-reward mapping to generalize -- is itself a research contribution that goes beyond the scope of the current paper. The ML-LNS work~\citep{ML-LNS} takes steps in this direction using imitation learning, but at a significant computational overhead.
+
+  \item \textbf{No available implementation:} To our knowledge, no published MAPF solver uses a contextual bandit policy within an ALNS loop. Including an unpublished baseline would require us to design, tune, and validate an entirely new system, which goes beyond minor revisions.
+\end{enumerate}
+
+We have, however, added a paragraph in the Related Work section (Section~2) discussing contextual bandits and their potential application to ALNS-based MAPF, and we identify this as an explicit future work direction in the Conclusion.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} 
+\begin{itemize}[leftmargin=2em]
+  \item New paragraph in Section~2 (Related Work) discussing contextual bandits and ML-LNS as related perspectives.
+  \item New bullet point in the Future Work part of Section~7 identifying contextual bandits as a promising extension.
+\end{itemize}
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{W3 -- Piecewise-stationarity assumption and endogenous drift in proofs}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer H, W3:} The main novelty appears to be the transition from stationary to non-stationary bandit policies, which seems like a natural and predictable extension. However, the setting introduces endogenous drift. Non-stationary guarantees typically require exogenous drift and bounded variation. The proofs of theorems 1, 2 do not incorporate any MAPF or ALNS-specific structural properties. Instead, the analysis relies on a piecewise-stationary environment assumption, without empirical evidence or convincing justification that heuristic rewards in MAPF search follow such a model.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} The reviewer raises a valid concern about the generality of the theoretical proofs and the justification for the piecewise-stationary assumption. We address both points:
+
+\paragraph{On the generality of the proofs.} We agree that Theorems 1 and 2 are established by direct application of classical non-stationary bandit theory (specifically Garivier and Moulines~\cite{Non-Stationary}) and do not exploit MAPF-specific structure. We view this as both a feature and a limitation: it means the results are \emph{general} and apply to any ALNS-like algorithm using sliding-window bandit policies, not just MAPF. However, the reviewer is correct that tighter, MAPF-specific bounds could in principle be derived. We have added a remark acknowledging this and identifying it as a direction for future theoretical work.
+
+\paragraph{On the piecewise-stationarity assumption.} The piecewise-stationary model is a standard idealization in non-stationary bandit literature and is used here to provide a tractable worst-case analysis. We acknowledge that the actual reward process in ALNS is more complex (and partially endogenous, as noted in W1). 
+
+To provide empirical grounding for this assumption, we have added a new \textbf{Experiment 0} (or as an appendix figure) that visualizes the reward time-series for each of the three heuristics ($H_{\text{rand}}$, $H_{\text{sync}}$, $H_{\text{entr}}$) over the course of a representative ALNS run on the Dense and Berlin maps. These plots show that heuristic rewards do exhibit approximately piecewise-structured behavior: periods of relatively stable performance interspersed with transitions as the solution quality improves. While this does not constitute a formal proof of piecewise-stationarity, it provides visual evidence that the assumption is a reasonable approximation.
+
+We have revised the introductory paragraph of Section~5 (Theoretical Analysis) to more carefully qualify the scope of the theoretical contribution: the theorems characterize the behavior of the sliding-window mechanism under an idealized piecewise-stationary model, and serve as a formal justification for the \emph{design choices} (logarithmic decay, windowed estimation) rather than as tight bounds on the MAPF-specific setting.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:}
+\begin{itemize}[leftmargin=2em]
+  \item Revised introductory paragraph of Section~5 clearly qualifying the scope of the theoretical results.
+  \item New Remark after Theorem 1 and Theorem 2 noting that proofs are general (not MAPF-specific) and that the piecewise-stationary model is an idealization.
+  \item New figure in Section~6 (Experiments) showing reward time-series for each heuristic over a representative ALNS run, providing empirical motivation for the piecewise-stationarity assumption.
+\end{itemize}
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{W4 -- Empirical evidence of piecewise-stationarity}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer H, W4:} It would be helpful to include empirical evidence indicating that heuristic rewards during ALNS search follow a piecewise-stationary distribution. Establishing this connection will further strengthen the theoretical foundation of the paper.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} We agree completely. As described in our response to W3 above, we have added a dedicated experiment that plots the per-heuristic reward time-series during a single ALNS run. Concretely:
+
+\begin{itemize}[leftmargin=2em]
+  \item We ran DyMAB for 120 seconds on the Dense map (600 agents) and the Berlin map (1000 agents) and logged the reward $r_{i,t}$ received each time heuristic $H_i$ was selected.
+  \item The resulting time-series plots show that each heuristic exhibits periods of relatively stationary reward, punctuated by transitions. For example, $H_{\text{entr}}$ (entropy-based) tends to yield high rewards early in the search when many complex, high-entropy paths exist, and then its effectiveness decreases as the most congested paths are resolved. Conversely, $H_{\text{rand}}$ and $H_{\text{sync}}$ become comparatively more effective in the later stages.
+  \item These observations provide an empirical basis for the piecewise-stationarity assumption: the reward distributions do shift over time, and the shifts are not uniformly random -- they correlate with identifiable phases of the ALNS search process.
+  \item We additionally show the sliding window $\hat{\mu}_i(t)$ estimates overlaid on the raw reward series, demonstrating that the windowed estimates track the local average effectively.
+\end{itemize}
+
+This new experiment also visually demonstrates \emph{why} stationary bandit policies (UCB1, Thompson Sampling) underperform DyMAB: they over-weight early rewards that are no longer representative.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} New Experiment~1 (``Reward non-stationarity analysis'') added in Section~6.1, with a new figure showing per-heuristic reward time-series with sliding-window estimates overlaid, on Dense and Berlin maps.
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{W5 -- Baselines and experimental comparison}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer H, W5:} The comparison with state-of-the-art approaches should be presented more carefully. Several relevant methods could be included, such as LaCAM*, CBSH2-RTC, and ECBS. Although one version of LaCAM is included, the exact implementation used should be clearly specified. Moreover, it is suggested to enhance Table 4 with comparison with different numbers of agents, or/and with runtime of the approaches. For example, a setup similar to that used in BALANCE.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} We thank the reviewer for these specific suggestions. We address each in turn:
+
+\paragraph{LaCAM specification.} We clarify in the revised paper (Section~6, experimental setup) that we use the \textbf{LaCAM2} implementation~\citep{LaCam} as available in the official open-source repository at the time of submission (commit hash provided in the revised paper). LaCAM2 is the most competitive version of LaCAM for large-scale instances. We report its solution cost after the same 500-second time budget as the other solvers.
+
+\paragraph{LaCAM*.} LaCAM* is an anytime extension of LaCAM that improves solution quality over time by iterative refinement. We have added LaCAM* as an additional baseline in Table~4 (large-scale experiment). We note that LaCAM* requires a feasible initial solution, which it refines using CBS-based improvements; its per-iteration cost is significantly higher than LNS-based methods, which accounts for its fewer iterations. Including it provides a useful reference point for the full spectrum of anytime solvers.
+
+\paragraph{CBSH2-RTC and ECBS.} CBSH2-RTC and ECBS are \emph{bounded-suboptimal} complete solvers (not anytime solvers). They aim to find a solution within a specified suboptimality bound $w$ and then terminate. They are not designed to improve solutions within an arbitrary time budget, which is the primary evaluation setting of our paper. Including them as direct baselines in an anytime comparison would be misleading. We have, however, added a paragraph in Section~2 (Related Work) discussing these methods and explicitly clarifying the distinction between bounded-suboptimal and anytime approaches.
+
+\paragraph{Enhancing Table 4 with multiple agent counts and runtimes.} We have extended the large-scale experiment (Table~4, now Table~5 in the revised paper) to include:
+\begin{itemize}[leftmargin=2em]
+  \item Additional agent counts ($m \in \{1000, 2000, 3500, 5000\}$ where feasible) on the city maps.
+  \item A column reporting average \emph{runtime to first improvement} (time to beat the initial solution) for each algorithm, providing a throughput-oriented metric.
+  \item Consistency with the BALANCE paper experimental format: we now include the Sum of Delays as a function of runtime (convergence curves) for the large-scale maps in an additional figure, equivalent to the BALANCE paper's Fig.~5.
+\end{itemize}
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:}
+\begin{itemize}[leftmargin=2em]
+  \item Section~6 experimental setup paragraph now specifies the exact LaCAM2 version used.
+  \item LaCAM* added as a baseline in the large-scale experiment (Table~5 in revised paper).
+  \item New paragraph in Section~2 discussing CBSH2-RTC, ECBS, and the distinction from anytime solvers.
+  \item Table~5 (large-scale) extended with additional agent configurations and a runtime-to-first-improvement column.
+  \item New Figure added showing Sum of Delays convergence curves on large-scale maps (analogous to BALANCE experimental format).
+\end{itemize}
+\end{changebox}
+
+%%--------------------------------------------------------------------
+\subsection*{Minor suggestions}
+%%--------------------------------------------------------------------
+
+\begin{reviewerbox}
+\textbf{Reviewer H, Minor 1:} It is suggested to include confidence intervals in the tables.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} We agree. In the revised paper, all tables now report the mean $\pm$ 95\% confidence interval (over 25 random scenarios) for both Cost/Sum of Delays and AUC values. For readability in the larger tables, the confidence interval is reported as a $\pm$ suffix in a separate sub-row.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} All experimental tables (Tables~1--5) now include 95\% confidence intervals.
+\end{changebox}
+
+\bigskip
+
+\begin{reviewerbox}
+\textbf{Reviewer H, Minor 2:} Move the comparison with other approaches (SOTA) to the first subsection of the experimental results.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} We have reorganized Section~6. The state-of-the-art comparison (previously Experiment 5) is now Experiment~2, appearing early in the section to immediately situate DyMAB relative to the field. The neighborhood selection ablation and window size sensitivity studies follow. We believe this ordering is more natural for the reader.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Experiments reordered: SOTA comparison is now Experiment~2; ablation studies follow.
+\end{changebox}
+
+\bigskip
+
+\begin{reviewerbox}
+\textbf{Reviewer H, Minor 3:} Improve the clarity and informativeness of Figure 1 to better illustrate the framework.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} Figure~1 (DyMAB overview) has been redesigned. The new version:
+\begin{itemize}[leftmargin=2em]
+  \item Explicitly labels the \emph{sliding window queue} $Q_i$ and its fixed size $W$, showing the enqueue/dequeue operation.
+  \item Distinguishes the two DyMAB policies (DyMAB($\epsilon$-Greedy) and DyMAB($\alpha$-UCB)) using separate visual branches.
+  \item Shows the reward feedback loop from the repair step back to $Q_i$ and then to the policy update.
+  \item Annotates the ``initial solution'' (PP) and the ``best solution returned'' components.
+  \item Uses a cleaner layout with consistent color coding for each heuristic.
+\end{itemize}
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} Figure~1 replaced with a redesigned version with improved labeling and layout.
+\end{changebox}
+
+\bigskip
+
+\begin{reviewerbox}
+\textbf{Reviewer H, Minor 4:} Consider renaming ``NewCity'' to a more descriptive and meaningful name.
+\end{reviewerbox}
+
+\begin{authorbox}
+\textbf{Authors' response:} We agree. The map has been renamed to \texttt{LkpCity} (short for \emph{Linköping City}), which is more descriptive. The name reflects the map's real-world origin as a grid-based abstraction of the street network of Linköping, Sweden. All occurrences of \texttt{NewCity} in the paper have been updated accordingly.
+\end{authorbox}
+
+\begin{changebox}
+\textbf{Changes in paper:} All occurrences of \texttt{NewCity} renamed to \texttt{LkpCity} throughout the paper (text, tables, and figures).
+\end{changebox}
+
+%%====================================================================
+\section*{Summary of All Changes}
+%%====================================================================
+
+For the convenience of the reviewers and the Associate Editor, we list all changes made to the manuscript:
+
+\begin{enumerate}[leftmargin=2em, label=\textbf{C\arabic*}]
+
+  %% --- Reviewer A ---
+  \item \textbf{Path notation updated} throughout: path sequence $p_i \to \mathcal{P}_i$; path entries $p_{i,t} \to p_{i_t}$ (nested subscript per reviewer's suggestion); set of paths $P \to \mathcal{P}$. Path definition now reads $\mathcal{P}_i = [p_{i_0}, p_{i_1}, \ldots, p_{i_{l(\mathcal{P}_i)}}]$. \emph{(Reviewer A, A1)}
+
+  \item \textbf{Section 3.1 extended} with brief survey of SOC, SOD, and Makespan; DyMAB scope explicitly stated. \emph{(Reviewer A, A2)}
+
+  \item \textbf{Formal MAB definition added} at the start of Section~3.2; clarifying sentence added about section placement. \emph{(Reviewer A, A3)}
+
+  \item \textbf{Tie-breaking clarification} added in Section~4.1.2 (synchronized walk is set-union; explicit truncation to $M$ added to Algorithm~1). \emph{(Reviewer A, A4)}
+
+  \item \textbf{Definition~1 updated} with explicit formula $D(a_i) = l(\mathcal{P}_i) - d(s_i, g_i)$. \emph{(Reviewer A, A5)}
+
+  \item \textbf{Definition~2 rewritten} with explicit set $\mathcal{A}(l,t)$ notation and clarified that all agents contribute to $H(l,t)$. \emph{(Reviewer A, A6)}
+
+  \item \textbf{Reward definition revised} in Section~4.2, explicitly connecting $r_{i,t}$ to the global SOC objective. \emph{(Reviewer A, A7)}
+
+  \item \textbf{Algorithms~1--2} revised: ``Step X:'' headers replaced with \texttt{\textbackslash tcp\{\}} comments. \emph{(Reviewer A, A8)}
+
+  \item \textbf{Algorithm~3 renamed} to ``Entropy-Guided Neighborhood Walk'' and fixed: overflow guard ensures $|\mathcal{N}| \leq M$. \emph{(Reviewer A, A9)}
+
+  \item \textbf{Algorithms~4--5 simplified} to compact pseudocode form. \emph{(Reviewer A, A10)}
+
+  \item \textbf{Experimental setup} now explicitly states that DyMAB uses $\{H_{\text{rand}}, H_{\text{sync}}, H_{\text{entr}}\}$ with rationale. \emph{(Reviewer A, A11)}
+
+  \item \textbf{Figure~2 updated:} AUC shading annotation added; competitor convergence curves added; legends moved outside all plot areas. \emph{(Reviewer A, A12)}
+
+  \item \textbf{New ablation (Section~6.3):} DyMAB-3 vs.\ DyMAB-5 (extended 5-heuristic pool). \emph{(Reviewer A, A13)}
+
+  \item \textbf{All legends} moved outside plot areas (Figures~3--6). \emph{(Reviewer A, A14)}
+
+  \item \textbf{Figure~4 re-generated} with corrected Algorithm~3; discussion updated. \emph{(Reviewer A, A15)}
+
+  \item \textbf{Figure~5 updated} with distinct line styles (solid/dashed/dotted) per algorithm. \emph{(Reviewer A, A16)}
+
+  \item \textbf{New ablation (Section~6.4):} fixed destroy policy ($H_{\text{sync}}$), comparing Roulette Wheel, UCB1, Thompson, DyMAB($\epsilon$-Greedy), DyMAB($\alpha$-UCB) selection strategies in isolation. \emph{(Reviewer A, A17)}
+
+  %% --- Reviewer H ---
+  \item \textbf{Figure~1 redesigned} to more clearly illustrate the sliding-window mechanism, reward feedback loop, and policy branches. \emph{(Reviewer H, Minor 3)}
+
+  \item \textbf{Section~4.3:} New paragraph acknowledging endogenous drift and MDP nature; bandit abstraction justified as practical simplification. \emph{(Reviewer H, W1)}
+
+  \item \textbf{Section~5 (Theory):} Revised introductory paragraph qualifying scope; new Remarks after Theorems~1 and~2 on the piecewise-stationary idealization. \emph{(Reviewer H, W1, W3)}
+
+  \item \textbf{New Experiment (Section~6.1):} Per-heuristic reward time-series plots providing empirical motivation for piecewise-stationarity. \emph{(Reviewer H, W4)}
+
+  \item \textbf{Experiments reordered:} SOTA comparison moved to Experiment~2. \emph{(Reviewer H, Minor 2)}
+
+  \item \textbf{SOTA comparison extended:} LaCAM* added; LaCAM2 version specified; large-scale table extended with multiple agent counts and runtime-to-first-improvement column; new convergence curve figure. \emph{(Reviewer H, W5)}
+
+  \item \textbf{Confidence intervals added} to all experimental tables. \emph{(Reviewer H, Minor 1)}
+
+  \item \textbf{Section~2 (Related Work) extended:} contextual bandits discussed; CBSH2-RTC/ECBS vs.\ anytime solvers distinction clarified. \emph{(Reviewer H, W2, W5)}
+
+  \item \textbf{New Limitations paragraph} in Section~7 (Conclusion): bandit/MDP gap and piecewise-stationarity idealization. \emph{(Reviewer H, W1, W3)}
+
+  \item \textbf{Future work extended:} contextual bandits identified as a promising direction. \emph{(Reviewer H, W2)}
+
+  \item \textbf{\texttt{NewCity} renamed to \texttt{LkpCity}} throughout the paper. \emph{(Reviewer H, Minor 4)}
+
+\end{enumerate}
+
+\bigskip
+\noindent We hope that the revised paper fully addresses the reviewers' concerns. We remain available for any further questions.
+
+\medskip
+\noindent\textit{Amath Sow, Daniel de Leng, Mariusz Wzorek, Fredrik Heintz}\\
+\textit{Linköping University}
+
+%%====================================================================
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{sample-base}
+
+\end{document}
+\endinput

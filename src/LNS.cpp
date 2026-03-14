@@ -919,6 +919,13 @@ void LNS::randomWalkWithEntropy(int agent_id, int start_location, int start_time
             if (t + 1 + next_h_val < upperbound) {
                 path_table.getConflictingAgents(agent_id, conflicting_agents, 
                                               loc, next_loc, t + 1);
+                // Truncate to neighbor_size if a single call overshoots
+                while ((int)conflicting_agents.size() > neighbor_size)
+                {
+                    auto it = conflicting_agents.end();
+                    --it;
+                    conflicting_agents.erase(it);
+                }
                 loc = next_loc;
                 moved = true;
                 break;
