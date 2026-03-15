@@ -150,19 +150,11 @@ This two-level notation ($\mathcal{P}_i$ for the sequence, $p_{i_t}$ for the $t$
 \end{reviewerbox}
 
 \begin{authorbox}
-\textbf{Authors' response:} We appreciate this suggestion. In the revised paper, Section~3.1 now briefly introduces the three standard MAPF objectives:
-\begin{itemize}[leftmargin=2em]
-  \item \textbf{Sum of Costs (SOC):} $\sum_i l(\mathcal{P}_i)$, the total travel distance across all agents.
-  \item \textbf{Sum of Delays (SOD):} $\sum_i (l(\mathcal{P}_i) - d(s_i, g_i))$, the total excess travel above the individual optima. SOD and SOC differ only by a constant (the sum of shortest-path distances), so minimizing one is equivalent to minimizing the other.
-  \item \textbf{Makespan:} $\max_i\, l(\mathcal{P}_i)$, the time at which the last agent reaches its goal.
-\end{itemize}
-We note that DyMAB targets SOC/SOD, which is the standard objective for the LNS family of solvers and the BALANCE paper we compare against. Makespan optimization requires a fundamentally different objective in the repair step and is left as future work. We now state this scope explicitly in the paper.
-
-Regarding the AUC metric: it captures the integral of SOD over time, which rewards algorithms that improve \emph{quickly}---an important property for anytime solvers. We have added a one-sentence intuitive explanation of AUC in the revised Section~3.1 (with a small diagram in the convergence figure).
+\textbf{Authors' response:} We have updated Section~3.1 to explicitly name the SOC objective at its first use and to introduce Makespan ($\max_i\, l(\mathcal{P}_i)$) as another standard MAPF metric. We clarify that this work focuses on SOC/SOD minimization, consistent with the LNS family of solvers.
 \end{authorbox}
 
 \begin{changebox}
-\textbf{Changes in paper:} Section~3.1 now briefly surveys SOC, SOD, and Makespan, explains their relationships, and explicitly scopes DyMAB to SOC/SOD minimization.
+\textbf{Changes in paper:} SOC named explicitly at first use in Section~3.1. Makespan introduced as an additional standard metric, with a note that DyMAB focuses on SOC/SOD minimization.
 \end{changebox}
 
 %%--------------------------------------------------------------------
@@ -176,17 +168,13 @@ Regarding the AUC metric: it captures the integral of SOD over time, which rewar
 \begin{authorbox}
 \textbf{Authors' response:} We agree on both points and have addressed them as follows:
 
-\paragraph{Formal MAB definition.} We have added a formal Definition of the $K$-armed bandit problem at the start of Section~3.2:
-\begin{quote}
-\emph{A $K$-armed bandit is a sequential decision problem. At each round $t \in \{1, \ldots, T\}$, an agent selects an arm $k_t \in \{1, \ldots, K\}$ and receives a reward $r_{k_t}(t)$ drawn i.i.d.\ from a distribution $D_{k_t}$ with unknown mean $\mu_{k_t}$. The goal is to maximize the cumulative reward $\sum_{t=1}^T r_{k_t}(t)$, or equivalently to minimize the cumulative regret $R_T = \sum_{t=1}^T (\mu^* - \mu_{k_t})$ where $\mu^* = \max_k \mu_k$.}
-\end{quote}
-The non-stationary extension (time-varying $\mu_k(t)$) is then introduced immediately after.
+\paragraph{MAB formalization.} We have added a concise description of the $K$-armed bandit problem as plain text at the start of Section~3.2, covering arms, rewards, and regret minimization. The non-stationary extension (time-varying $\mu_k(t)$) is introduced immediately after.
 
-\paragraph{Placement.} We have retained Section~3.2 in the Background (rather than moving it to Related Work) because it provides the \emph{formal vocabulary} (arms, rewards, regret) that is used directly in Section~4 (DyMAB formalization) and Section~5 (theoretical analysis). Moving it to Related Work would break this forward reference and force readers to look backward for definitions. We have, however, added a sentence at the start of Section~3.2 clarifying its role: ``\emph{We introduce the MAB formalism here as it is used directly in Sections~4 and 5; a survey of related MAB methods applied to combinatorial optimization is given in Section~2.}''
+\paragraph{Placement.} We have retained Section~3.2 in the Background because it introduces the formal vocabulary (arms, rewards, regret) used directly in Section~4 (DyMAB) and Section~5 (theoretical analysis). Moving it to Related Work would force readers to look backward for definitions.
 \end{authorbox}
 
 \begin{changebox}
-\textbf{Changes in paper:} Formal $K$-armed bandit definition added at the start of Section~3.2. Clarifying sentence added to explain the section's role relative to Related Work.
+\textbf{Changes in paper:} $K$-armed bandit formalization added as introductory text at the start of Section~3.2.
 \end{changebox}
 
 %%--------------------------------------------------------------------
@@ -483,26 +471,11 @@ Results confirm that the non-stationary DyMAB policies outperform stationary one
 \end{reviewerbox}
 
 \begin{authorbox}
-\textbf{Authors' response:} This is an excellent and important observation, and we fully agree with the reviewer's characterization. The ALNS search process \emph{is} policy-dependent: when a heuristic successfully improves the solution, it alters the state of the system and thus changes the reward landscape for all heuristics going forward. This is a form of \emph{endogenous non-stationarity}, in contrast to the \emph{exogenous} drift assumed by standard sliding-window or discounted bandit analyses.
-
-We acknowledge this gap explicitly in the revised paper. Specifically:
-
-\begin{enumerate}[leftmargin=2em]
-  \item \textbf{Theoretical framing:} We have added a paragraph in Section~4 (DyMAB problem definition, after the windowed queue definition) that clearly acknowledges the MDP nature of the problem. We explain that applying the bandit abstraction is a deliberate and well-established simplification -- analogous to how bandit policies are applied within ALNS for combinatorial optimization (e.g., vehicle routing), where the same coupling exists but has been found to work well empirically. We note that the full MDP formulation would be intractable due to the exponentially large state space.
-
-  \item \textbf{Theoretical results:} We have added a remark after Theorem 1 (and after Theorem 2) that explicitly states: \emph{``The above bound holds under the piecewise-stationary exogenous assumption. In the actual MAPF-ALNS setting, non-stationarity is partly endogenous (policy-induced). The theoretical analysis should therefore be understood as providing a formal characterization of the sliding-window mechanism's properties under an idealized model, rather than a tight guarantee for the MAPF setting. The empirical results in Section~6 corroborate that the practical performance aligns with the theoretical intuition.''} 
-
-  \item \textbf{Limitations section:} A dedicated Limitations paragraph has been added in the Conclusion section, explicitly listing the MDP/bandit gap as the primary theoretical limitation.
-\end{enumerate}
+\textbf{Authors' response:} We adopt the non-stationary bandit formulation as a practical and effective abstraction. We acknowledge that the ALNS process is, in principle, policy-dependent: applying a heuristic and improving the solution affects the reward distributions of all heuristics in future iterations. We have added a paragraph in Section~4 noting this, and pointing to richer formulations (MDP, contextual bandit) as future directions. This is addressed jointly with W2.
 \end{authorbox}
 
 \begin{changebox}
-\textbf{Changes in paper:} 
-\begin{itemize}[leftmargin=2em]
-  \item New paragraph added in Section~4.3 after Definition 3 (windowed reward memory), acknowledging endogenous drift.
-  \item New Remark added after each theorem in Section~5 clarifying the scope of the theoretical guarantees.
-  \item New ``Limitations'' paragraph added at the end of Section~7 (Conclusion).
-\end{itemize}
+\textbf{Changes in paper:} Paragraph added in Section~4 acknowledging policy-dependence and noting MDP and contextual bandit formulations as future directions. Conclusion updated accordingly.
 \end{changebox}
 
 %%--------------------------------------------------------------------
@@ -514,25 +487,11 @@ We acknowledge this gap explicitly in the revised paper. Specifically:
 \end{reviewerbox}
 
 \begin{authorbox}
-\textbf{Authors' response:} We agree that a contextual bandit formulation is a natural and interesting direction. In the contextual bandit setting, the algorithm would observe a feature vector (context) at each iteration -- describing, e.g., the current solution quality, degree of conflict clustering, agent delay distribution, or time elapsed -- before selecting a heuristic. The selection policy would then learn a mapping from context to heuristic.
-
-There are two reasons we have not included contextual bandit baselines in the current paper:
-
-\begin{enumerate}[leftmargin=2em]
-  \item \textbf{Practical complexity:} Defining a meaningful, low-dimensional context that is (a) computable cheaply within the ALNS loop, (b) predictive of which heuristic will perform well, and (c) stable enough for the context-reward mapping to generalize -- is itself a research contribution that goes beyond the scope of the current paper. The ML-LNS work~\citep{ML-LNS} takes steps in this direction using imitation learning, but at a significant computational overhead.
-
-  \item \textbf{No available implementation:} To our knowledge, no published MAPF solver uses a contextual bandit policy within an ALNS loop. Including an unpublished baseline would require us to design, tune, and validate an entirely new system, which goes beyond minor revisions.
-\end{enumerate}
-
-We have, however, added a paragraph in the Related Work section (Section~2) discussing contextual bandits and their potential application to ALNS-based MAPF, and we identify this as an explicit future work direction in the Conclusion.
+\textbf{Authors' response:} We agree this is a natural and interesting perspective. As discussed in W1, we have added a paragraph in Section~4 that notes both MDP and contextual bandit formulations as alternative approaches, and identifies them as promising directions for future work in the Conclusion. We do not include them as baselines since no off-the-shelf contextual bandit implementation is available for this setting, but we discuss the potential benefits.
 \end{authorbox}
 
 \begin{changebox}
-\textbf{Changes in paper:} 
-\begin{itemize}[leftmargin=2em]
-  \item New paragraph in Section~2 (Related Work) discussing contextual bandits and ML-LNS as related perspectives.
-  \item New bullet point in the Future Work part of Section~7 identifying contextual bandits as a promising extension.
-\end{itemize}
+\textbf{Changes in paper:} Contextual bandit discussed in Section~4 alongside MDP note (see W1). Identified as future work in Conclusion.
 \end{changebox}
 
 %%--------------------------------------------------------------------
@@ -544,24 +503,15 @@ We have, however, added a paragraph in the Related Work section (Section~2) disc
 \end{reviewerbox}
 
 \begin{authorbox}
-\textbf{Authors' response:} The reviewer raises a valid concern about the generality of the theoretical proofs and the justification for the piecewise-stationary assumption. We address both points:
+\textbf{Authors' response:} We address both points raised by the reviewer.
 
-\paragraph{On the generality of the proofs.} We agree that Theorems 1 and 2 are established by direct application of classical non-stationary bandit theory (specifically Garivier and Moulines~\cite{Non-Stationary}) and do not exploit MAPF-specific structure. We view this as both a feature and a limitation: it means the results are \emph{general} and apply to any ALNS-like algorithm using sliding-window bandit policies, not just MAPF. However, the reviewer is correct that tighter, MAPF-specific bounds could in principle be derived. We have added a remark acknowledging this and identifying it as a direction for future theoretical work.
+\paragraph{On the generality of the proofs.} Theorems~1 and~2 follow from classical non-stationary bandit theory~\citep{Non-Stationary} and do not exploit MAPF-specific structure. We view this as a feature: the results are general and apply to any ALNS-like algorithm using sliding-window bandit policies. The theorems serve as formal justification for our design choices (windowed estimation, logarithmic decay) under an idealized piecewise-stationary model, rather than as tight bounds for the MAPF-specific setting. We have added a remark in Section~5 acknowledging this scope.
 
-\paragraph{On the piecewise-stationarity assumption.} The piecewise-stationary model is a standard idealization in non-stationary bandit literature and is used here to provide a tractable worst-case analysis. We acknowledge that the actual reward process in ALNS is more complex (and partially endogenous, as noted in W1). 
-
-To provide empirical grounding for this assumption, we have added a new \textbf{Experiment 0} (or as an appendix figure) that visualizes the reward time-series for each of the three heuristics ($H_{\text{rand}}$, $H_{\text{sync}}$, $H_{\text{entr}}$) over the course of a representative ALNS run on the Dense and Berlin maps. These plots show that heuristic rewards do exhibit approximately piecewise-structured behavior: periods of relatively stable performance interspersed with transitions as the solution quality improves. While this does not constitute a formal proof of piecewise-stationarity, it provides visual evidence that the assumption is a reasonable approximation.
-
-We have revised the introductory paragraph of Section~5 (Theoretical Analysis) to more carefully qualify the scope of the theoretical contribution: the theorems characterize the behavior of the sliding-window mechanism under an idealized piecewise-stationary model, and serve as a formal justification for the \emph{design choices} (logarithmic decay, windowed estimation) rather than as tight bounds on the MAPF-specific setting.
+\paragraph{On the piecewise-stationarity assumption.} The piecewise-stationary model is a standard idealization used to derive tractable guarantees. To provide empirical grounding, we have added \textbf{Experiment~0} (Section~6.1) which plots the per-heuristic reward time-series over a representative DyMAB run (see also W4). The plots show approximately piecewise-structured behavior --- periods of relatively stable reward punctuated by transitions --- supporting the assumption as a reasonable approximation.
 \end{authorbox}
 
 \begin{changebox}
-\textbf{Changes in paper:}
-\begin{itemize}[leftmargin=2em]
-  \item Revised introductory paragraph of Section~5 clearly qualifying the scope of the theoretical results.
-  \item New Remark after Theorem 1 and Theorem 2 noting that proofs are general (not MAPF-specific) and that the piecewise-stationary model is an idealization.
-  \item New figure in Section~6 (Experiments) showing reward time-series for each heuristic over a representative ALNS run, providing empirical motivation for the piecewise-stationarity assumption.
-\end{itemize}
+\textbf{Changes in paper:} Remark added in Section~5 qualifying the scope of the theoretical results. New Experiment~0 (Section~6.1) added with per-heuristic reward time-series plot (see W4).
 \end{changebox}
 
 %%--------------------------------------------------------------------
@@ -573,20 +523,11 @@ We have revised the introductory paragraph of Section~5 (Theoretical Analysis) t
 \end{reviewerbox}
 
 \begin{authorbox}
-\textbf{Authors' response:} We agree completely. As described in our response to W3 above, we have added a dedicated experiment that plots the per-heuristic reward time-series during a single ALNS run. Concretely:
-
-\begin{itemize}[leftmargin=2em]
-  \item We ran DyMAB for 120 seconds on the Dense map (600 agents) and the Berlin map (1000 agents) and logged the reward $r_{i,t}$ received each time heuristic $H_i$ was selected.
-  \item The resulting time-series plots show that each heuristic exhibits periods of relatively stationary reward, punctuated by transitions. For example, $H_{\text{entr}}$ (entropy-based) tends to yield high rewards early in the search when many complex, high-entropy paths exist, and then its effectiveness decreases as the most congested paths are resolved. Conversely, $H_{\text{rand}}$ and $H_{\text{sync}}$ become comparatively more effective in the later stages.
-  \item These observations provide an empirical basis for the piecewise-stationarity assumption: the reward distributions do shift over time, and the shifts are not uniformly random -- they correlate with identifiable phases of the ALNS search process.
-  \item We additionally show the sliding window $\hat{\mu}_i(t)$ estimates overlaid on the raw reward series, demonstrating that the windowed estimates track the local average effectively.
-\end{itemize}
-
-This new experiment also visually demonstrates \emph{why} stationary bandit policies (UCB1, Thompson Sampling) underperform DyMAB: they over-weight early rewards that are no longer representative.
+\textbf{Authors' response:} We agree. As described in W3, we have added \textbf{Experiment~0} in Section~6.1, which plots the reward time-series $r_{i,t}$ for each heuristic ($H_{\text{rand}}$, $H_{\text{sync}}$, $H_{\text{entr}}$) over a representative DyMAB run, with the sliding-window estimate $\hat{\mu}_i(t)$ overlaid. The plots show that each heuristic exhibits periods of relatively stable reward punctuated by transitions that correlate with phases of the ALNS search (e.g., $H_{\text{entr}}$ is most effective early when congestion is high; $H_{\text{sync}}$ and $H_{\text{rand}}$ become comparatively more effective as complex paths are resolved). This provides visual evidence that the piecewise-stationary assumption is a reasonable approximation, and also illustrates why stationary policies (UCB1, Thompson) underperform DyMAB by over-weighting early rewards.
 \end{authorbox}
 
 \begin{changebox}
-\textbf{Changes in paper:} New Experiment~1 (``Reward non-stationarity analysis'') added in Section~6.1, with a new figure showing per-heuristic reward time-series with sliding-window estimates overlaid, on Dense and Berlin maps.
+\textbf{Changes in paper:} New Experiment~0 (``Reward non-stationarity'') added in Section~6.1, showing per-heuristic reward time-series with sliding-window estimates overlaid.
 \end{changebox}
 
 %%--------------------------------------------------------------------
@@ -600,29 +541,17 @@ This new experiment also visually demonstrates \emph{why} stationary bandit poli
 \begin{authorbox}
 \textbf{Authors' response:} We thank the reviewer for these specific suggestions. We address each in turn:
 
-\paragraph{LaCAM specification.} We clarify in the revised paper (Section~6, experimental setup) that we use the \textbf{LaCAM2} implementation~\citep{LaCam} as available in the official open-source repository at the time of submission (commit hash provided in the revised paper). LaCAM2 is the most competitive version of LaCAM for large-scale instances. We report its solution cost after the same 500-second time budget as the other solvers.
+\paragraph{LaCAM specification.} We clarify in the experimental setup (Section~6) that we use the LaCAM implementation~\citep{LaCam} from the official open-source repository.
 
-\paragraph{LaCAM*.} LaCAM* is an anytime extension of LaCAM that improves solution quality over time by iterative refinement. We have added LaCAM* as an additional baseline in Table~4 (large-scale experiment). We note that LaCAM* requires a feasible initial solution, which it refines using CBS-based improvements; its per-iteration cost is significantly higher than LNS-based methods, which accounts for its fewer iterations. Including it provides a useful reference point for the full spectrum of anytime solvers.
+\paragraph{LaCAM*.} LaCAM* is an anytime extension of LaCAM that iteratively refines solution quality over time. We have added LaCAM* as an additional baseline in the last experiment (large-scale comparison).
 
-\paragraph{CBSH2-RTC and ECBS.} CBSH2-RTC and ECBS are \emph{bounded-suboptimal} complete solvers (not anytime solvers). They aim to find a solution within a specified suboptimality bound $w$ and then terminate. They are not designed to improve solutions within an arbitrary time budget, which is the primary evaluation setting of our paper. Including them as direct baselines in an anytime comparison would be misleading. We have, however, added a paragraph in Section~2 (Related Work) discussing these methods and explicitly clarifying the distinction between bounded-suboptimal and anytime approaches.
+\paragraph{CBSH2-RTC and ECBS.} These are bounded-suboptimal complete solvers, not anytime solvers --- they find a solution within a suboptimality bound and terminate, rather than continuously improving within a time budget. Comparing them directly in an anytime evaluation setting would be misleading. We have added a note in Section~2 (Related Work) clarifying this distinction.
 
-\paragraph{Enhancing Table 4 with multiple agent counts and runtimes.} We have extended the large-scale experiment (Table~4, now Table~5 in the revised paper) to include:
-\begin{itemize}[leftmargin=2em]
-  \item Additional agent counts ($m \in \{1000, 2000, 3500, 5000\}$ where feasible) on the city maps.
-  \item A column reporting average \emph{runtime to first improvement} (time to beat the initial solution) for each algorithm, providing a throughput-oriented metric.
-  \item Consistency with the BALANCE paper experimental format: we now include the Sum of Delays as a function of runtime (convergence curves) for the large-scale maps in an additional figure, equivalent to the BALANCE paper's Fig.~5.
-\end{itemize}
+\paragraph{Enhancing the last experiment with multiple agent counts and runtime.} We have extended the large-scale comparison table to include additional agent counts and a runtime column, consistent with the evaluation format used in BALANCE~\citep{Balance}.
 \end{authorbox}
 
 \begin{changebox}
-\textbf{Changes in paper:}
-\begin{itemize}[leftmargin=2em]
-  \item Section~6 experimental setup paragraph now specifies the exact LaCAM2 version used.
-  \item LaCAM* added as a baseline in the large-scale experiment (Table~5 in revised paper).
-  \item New paragraph in Section~2 discussing CBSH2-RTC, ECBS, and the distinction from anytime solvers.
-  \item Table~5 (large-scale) extended with additional agent configurations and a runtime-to-first-improvement column.
-  \item New Figure added showing Sum of Delays convergence curves on large-scale maps (analogous to BALANCE experimental format).
-\end{itemize}
+\textbf{Changes in paper:} LaCAM* added as a baseline in the large-scale experiment. LaCAM version clarified in Section~6. Note on CBSH2-RTC/ECBS added in Section~2. Last experiment extended with additional agent counts and runtime column.
 \end{changebox}
 
 %%--------------------------------------------------------------------
@@ -703,7 +632,7 @@ For the convenience of the reviewers and the Associate Editor, we list all chang
 
   \item \textbf{Section 3.1 extended} with brief survey of SOC, SOD, and Makespan; DyMAB scope explicitly stated. \emph{(Reviewer A, A2)}
 
-  \item \textbf{Formal MAB definition added} at the start of Section~3.2; clarifying sentence added about section placement. \emph{(Reviewer A, A3)}
+  \item \textbf{MAB formalization added} as introductory prose at the start of Section~3.2, covering arms, rewards, and regret. \emph{(Reviewer A, A3)}
 
   \item \textbf{Tie-breaking clarification} added in Section~4.1.2 (synchronized walk is set-union; explicit truncation to $M$ added to Algorithm~1). \emph{(Reviewer A, A4)}
 

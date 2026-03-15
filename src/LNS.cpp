@@ -9,7 +9,8 @@
 #include <unordered_map>
 #include <vector>
 #include <tuple>
-#include <iostream>    
+#include <iostream>
+#include <fstream>
 
 LNS::LNS(const Instance& instance, double time_limit, const string & init_algo_name, const string & replan_algo_name,
          const string & destroy_name, int neighbor_size, int num_of_iterations, bool use_init_lns,
@@ -204,6 +205,23 @@ bool LNS::run()
             if(neighbor.agents.size())
             {
                 value /= neighbor.agents.size();
+            }
+            // Log per-iteration reward per heuristic for non-stationarity analysis
+            {
+                static std::ofstream reward_log;
+                static bool header_written = false;
+                if (!reward_log.is_open())
+                    reward_log.open("reward_log.csv");
+                if (!header_written)
+                {
+                    reward_log << "iteration,heuristic,reward\n";
+                    header_written = true;
+                }
+                const char* heuristic_names[] = {"H_sync", "H_entr", "H_rand"};
+                int h_idx = heuristicBanditStats.banditIndex;
+                reward_log << iteration_stats.size() << ","
+                           << (h_idx >= 0 && h_idx < 3 ? heuristic_names[h_idx] : "unknown") << ","
+                           << value << "\n";
             }
             updateDestroyAndNeighborhoodWeights(value, condition);
         }
