@@ -1,8 +1,0 @@
-number of agents,runtime,solution cost,initial solution cost,lower bound,sum of distance,iterations,group size,runtime of initial solution,restart times,area under curve,LL expanded nodes,LL generated,LL reopened,LL runs,preprocessing runtime,solver name,instance name,success,selected_neighbor,neighbor_size,avg_reward,max_reward,min_reward,total_reward,destroy_strategy
-500,10.0179,95490,96655,88354,88354,323,8,0.414387,0,74654.2,1116126,2875195,67967,3068,3.11955,LNS(PP;PP),Berlin_1_256-random-1.scen,1,0,8,0,-1.79769e+308,1.79769e+308,0,Random
-500,60.0006,88523,96655,88354,88354,959,21.3069,0.445666,0,40217.8,11954569,26910177,1563901,20866,3.32763,LNS(PP;PP),Berlin_1_256-random-1.scen,1,0,32
-5,60.0004,592,592,592,592,35497,5,0.00187745,0,0,21191709,53675772,0,177485,0.0531454,LNS(PP;PP),Berlin_1_256-random-1.scen,1,0,32
-500,60.0055,88527,96655,88354,88354,904,21.361,0.462169,0,43073.2,11391693,25465784,1559625,19742,3.52769,LNS(PP;PP),Berlin_1_256-random-1.scen,1,0,32
-400,100.011,68361,75080,68028,68028,1189,23.3182,0.483213,0,83939.2,21222255,51286413,281672,28033,1.67392,LNS(PP;PP),maps/dense/den520d.map-scen-random/den520d-random-1.scen,1,0,32
-400,100.006,68696,75080,68028,68028,391,131.256,0.462811,0,152232,27304351,60832048,1924256,48800,1.59411,LNS(PP;PP),maps/dense/den520d.map-scen-random/den520d-random-1.scen,1,1,512
-400,100.001,69092,75080,68028,68028,324,169.341,0.468933,0,241589,26692530,60169340,1974034,52592,1.61577,LNS(PP;PP),maps/dense/den520d.map-scen-random/den520d-random-1.scen,1,2,256

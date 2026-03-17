@@ -783,50 +783,36 @@ void LNS::synchronizedRandomWalk(const vector<int>& seed_agents, set<int>& confl
 // Add these implementations to your existing LNS.cpp file
 
 double LNS::calculatePathEntropy(const Agent& agent) {
-    map<int, int> location_frequencies;
-    double entropy = 0.0;
-    
-    // Count frequency of locations in the path
-    for (const auto& node : agent.path) {
+    unordered_map<int, int> location_frequencies;
+    location_frequencies.reserve(agent.path.size());
+
+    for (const auto& node : agent.path)
         location_frequencies[node.location]++;
-    }
-    
-    // Calculate entropy using Shannon's formula
+
     double path_length = static_cast<double>(agent.path.size());
+    double entropy = 0.0;
     for (const auto& freq_pair : location_frequencies) {
         double probability = freq_pair.second / path_length;
         entropy -= probability * log2(probability);
     }
-    
     return entropy;
 }
 
 double LNS::calculateLocationEntropy(int location, int timestep) {
-    map<int, int> agent_frequencies;
-    double entropy = 0.0;
-    
-    // Count agents at this location and timestep
+    // Each agent either is or isn't at this location → each contributes probability 1/n,
+    // so Shannon entropy = log2(n). No map allocation needed.
+    int count = 0;
     for (size_t i = 0; i < agents.size(); i++) {
-        if (timestep < agents[i].path.size() && 
-            agents[i].path[timestep].location == location) {
-            agent_frequencies[i]++;
-        }
+        if (timestep < (int)agents[i].path.size() &&
+            agents[i].path[timestep].location == location)
+            ++count;
     }
-    
-    // Calculate entropy
-    double total_agents = static_cast<double>(agent_frequencies.size());
-    if (total_agents == 0) return 0.0;
-    
-    for (const auto& freq_pair : agent_frequencies) {
-        double probability = freq_pair.second / total_agents;
-        entropy -= probability * log2(probability);
-    }
-    
-    return entropy;
+    return count > 1 ? log2((double)count) : 0.0;
 }
 
 vector<pair<int, double>> LNS::computeAgentEntropies() {
     vector<pair<int, double>> agent_entropies;
+    agent_entropies.reserve(agents.size());
     
     for (size_t i = 0; i < agents.size(); i++) {
         if (tabu_list.find(i) != tabu_list.end()) continue;
@@ -836,7 +822,7 @@ vector<pair<int, double>> LNS::computeAgentEntropies() {
         
         // Combine entropy with delay information
         double combined_score = path_entropy * (1.0 + delay_factor);
-        agent_entropies.push_back(make_pair(i, combined_score));
+        agent_entropies.push_back(make_pair((int)i, combined_score));
     }
     
     // Sort by entropy score in descending order
@@ -860,28 +846,28 @@ bool LNS::generateNeighborByHotspots() {
     set<int> selected_agents;
     vector<double> probabilities;
     double sum_exp = 0.0;
-    
-    // Calculate Boltzmann probabilities
+
+    // Boltzmann sampling
     for (const auto& agent_entry : agent_entropies) {
         double exp_val = exp(agent_entry.second / temperature);
         probabilities.push_back(exp_val);
         sum_exp += exp_val;
     }
-    
+
     // Normalize probabilities
     for (double& prob : probabilities) {
         prob /= sum_exp;
     }
-    
+
     // Select initial agent
     double rand_val = static_cast<double>(rand()) / RAND_MAX;
     double cumulative_prob = 0.0;
     int selected_idx = 0;
-    
+
     for (size_t i = 0; i < probabilities.size(); i++) {
         cumulative_prob += probabilities[i];
         if (rand_val <= cumulative_prob) {
-            selected_idx = i;
+            selected_idx = (int)i;
             break;
         }
     }
@@ -889,10 +875,21 @@ bool LNS::generateNeighborByHotspots() {
     int initial_agent = agent_entropies[selected_idx].first;
     selected_agents.insert(initial_agent);
 
-    // Use entropy-based random walk
-    randomWalkWithEntropy(initial_agent, agents[initial_agent].path[0].location, 
-                         0, selected_agents, neighbor_size, 
-                         (int)agents[initial_agent].path.size() - 1);
+    // Start walk from the most congested location on the agent's path
+    // (argmax location entropy) rather than path[0] which is typically empty.
+    const auto& apath = agents[initial_agent].path;
+    int upperbound    = (int)apath.size() - 1;
+    int best_start_loc = apath[0].location;
+    int best_start_t   = 0;
+    double best_ent    = -1.0;
+    for (int t = 0; t < upperbound; t++) {
+        double ent = calculateLocationEntropy(apath[t].location, t);
+        if (ent > best_ent) { best_ent = ent; best_start_loc = apath[t].location; best_start_t = t; }
+    }
+
+    randomWalkWithEntropy(initial_agent, best_start_loc,
+                         best_start_t, selected_agents, neighbor_size,
+                         upperbound);
 
     if (selected_agents.size() < 2)
         return false;

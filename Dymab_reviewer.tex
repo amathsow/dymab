@@ -539,19 +539,28 @@ Results confirm that the non-stationary DyMAB policies outperform stationary one
 \end{reviewerbox}
 
 \begin{authorbox}
-\textbf{Authors' response:} We thank the reviewer for these specific suggestions. We address each in turn:
+\textbf{Authors' response:} We thank the reviewer for these specific and constructive suggestions. We address each point in turn.
 
-\paragraph{LaCAM specification.} We clarify in the experimental setup (Section~6) that we use the LaCAM implementation~\citep{LaCam} from the official open-source repository.
+\paragraph{LaCAM specification.}
+We clarify in Section~6 that the LaCAM baseline uses the \textbf{original LaCAM} implementation~\citep{LaCam} (AAAI-23, Okumura), which is a complete, search-based anytime algorithm known for strong scalability.
 
-\paragraph{LaCAM*.} LaCAM* is an anytime extension of LaCAM that iteratively refines solution quality over time. We have added LaCAM* as an additional baseline in the last experiment (large-scale comparison).
+\paragraph{LaCAM*.}
+LaCAM*~\citep{LaCamStar} (IJCAI-23, Okumura) is an extension of LaCAM that provides eventual optimality guarantees while retaining the anytime property. We have added \textbf{LaCAM*} as an additional baseline in the large-scale experiment (Table~4), using the official open-source implementation. This allows a direct comparison between DyMAB and both LaCAM variants across increasing numbers of agents.
 
-\paragraph{CBSH2-RTC and ECBS.} These are bounded-suboptimal complete solvers, not anytime solvers --- they find a solution within a suboptimality bound and terminate, rather than continuously improving within a time budget. Comparing them directly in an anytime evaluation setting would be misleading. We have added a note in Section~2 (Related Work) clarifying this distinction.
+\paragraph{CBSH2-RTC and ECBS.}
+CBSH2-RTC~\citep{CBSH2} and ECBS~\citep{ECBS} are bounded-suboptimal \emph{complete} solvers: they find a solution within a guaranteed suboptimality factor and then terminate. They do not continuously improve a solution within a time budget. Their scalability is also fundamentally limited to small-to-medium instances (typically below 300--500 agents), making them unsuitable as baselines in a large-scale anytime evaluation. We have added a clarifying sentence in Section~2 (Related Work) to explain this distinction.
 
-\paragraph{Enhancing the last experiment with multiple agent counts and runtime.} We have extended the large-scale comparison table to include additional agent counts and a runtime column, consistent with the evaluation format used in BALANCE~\citep{Balance}.
+\paragraph{Enhanced Table~4: increasing agent counts and runtime.}
+Following the evaluation format in BALANCE~\citep{Balance}, we have restructured Table~4 to include results across \textbf{increasing numbers of agents} per map, providing a clearer view of how each algorithm scales. Both LaCAM and LaCAM* are included in this extended table, allowing the reviewer to assess the relative performance of anytime LNS-based methods (DyMAB, BALANCE) against search-based methods (LaCAM, LaCAM*) as problem size grows.
 \end{authorbox}
 
 \begin{changebox}
-\textbf{Changes in paper:} LaCAM* added as a baseline in the large-scale experiment. LaCAM version clarified in Section~6. Note on CBSH2-RTC/ECBS added in Section~2. Last experiment extended with additional agent counts and runtime column.
+\textbf{Changes in paper:}
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Section~6:} LaCAM baseline specified as the original LaCAM~\citep{LaCam} (AAAI-23).
+  \item \textbf{Table~4 extended:} LaCAM*~\citep{LaCamStar} (IJCAI-23) added as a new baseline; results reported across increasing agent counts per map.
+  \item \textbf{Section~2 (Related Work):} Sentence added explaining that CBSH2-RTC and ECBS are bounded-suboptimal complete solvers, not anytime algorithms, and therefore not direct baselines in this evaluation.
+\end{itemize}
 \end{changebox}
 
 %%--------------------------------------------------------------------
@@ -673,11 +682,11 @@ For the convenience of the reviewers and the Associate Editor, we list all chang
 
   \item \textbf{Experiments reordered:} SOTA comparison moved to Experiment~2. \emph{(Reviewer H, Minor 2)}
 
-  \item \textbf{SOTA comparison extended:} LaCAM* added; LaCAM2 version specified; large-scale table extended with multiple agent counts and runtime-to-first-improvement column; new convergence curve figure. \emph{(Reviewer H, W5)}
+  \item \textbf{SOTA comparison extended:} LaCAM baseline specified as original LaCAM~\citep{LaCam} (AAAI-23); LaCAM*~\citep{LaCamStar} (IJCAI-23) added as a new baseline; Table~4 extended with increasing agent counts per map. Section~2 notes that CBSH2-RTC/ECBS are complete solvers, not anytime, and are therefore excluded. \emph{(Reviewer H, W5)}
 
   \item \textbf{Confidence intervals added} to all experimental tables. \emph{(Reviewer H, Minor 1)}
 
-  \item \textbf{Section~2 (Related Work) extended:} contextual bandits discussed; CBSH2-RTC/ECBS vs.\ anytime solvers distinction clarified. \emph{(Reviewer H, W2, W5)}
+  \item \textbf{Section~2 (Related Work) extended:} contextual bandits discussed (W2); CBSH2-RTC and ECBS identified as bounded-suboptimal complete solvers (not anytime), explaining their exclusion from the comparison. \emph{(Reviewer H, W2, W5)}
 
   \item \textbf{New Limitations paragraph} in Section~7 (Conclusion): bandit/MDP gap and piecewise-stationarity idealization. \emph{(Reviewer H, W1, W3)}
 

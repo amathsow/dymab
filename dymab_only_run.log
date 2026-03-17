@@ -1,0 +1,37 @@
+
+=== Map: NewYork_0_1024 ===
+  [DyMAB-aUCB] NewYork_0_1024 ...
+Initial solution cost = 3529827, runtime = 351.832
+Iteration 1, group size = 17, solution cost = 3529172, remaining time = 137.23
+Iteration 2, group size = 32, solution cost = 3525293, remaining time = 126.127
+Iteration 3, group size = 32, solution cost = 3525280, remaining time = 118.597
+Iteration 4, group size = 32, solution cost = 3523941, remaining time = 109.385
+Iteration 5, group size = 32, solution cost = 3522756, remaining time = 97.989
+Iteration 6, group size = 10, solution cost = 3522566, remaining time = 90.1316
+Iteration 7, group size = 14, solution cost = 3519435, remaining time = 83.3937
+Iteration 8, group size = 32, solution cost = 3518567, remaining time = 74.8008
+Iteration 9, group size = 4, solution cost = 3517338, remaining time = 68.6672
+Iteration 10, group size = 32, solution cost = 3517250, remaining time = 59.9096
+Iteration 11, group size = 32, solution cost = 3517250, remaining time = 47.3547
+Iteration 12, group size = 32, solution cost = 3516341, remaining time = 38.2487
+Iteration 13, group size = 32, solution cost = 3516341, remaining time = 29.1389
+Iteration 14, group size = 23, solution cost = 3515819, remaining time = 20.1952
+Iteration 15, group size = 27, solution cost = 3514394, remaining time = 12.5186
+Iteration 16, group size = 14, solution cost = 3513804, remaining time = 5.1387
+Iteration 17, group size = 32, solution cost = 3513804, remaining time = -1.40738
+LNS(PP;PP): runtime = 501.407, iterations = 18, solution cost = 3513804, initial solution cost = 3529827, failed iterations = 3
+NewYork_0_1024,DyMAB-aUCB,3513804,7.34136e+07,1
+  [DyMAB-eGreedy] NewYork_0_1024 ...
+Initial solution cost = 3529827, runtime = 332.091
+Iteration 1, group size = 128, solution cost = 3529827, remaining time = 155.598
+Iteration 2, group size = 28, solution cost = 3529827, remaining time = 142.883
+Iteration 3, group size = 19, solution cost = 3529705, remaining time = 132.653
+Iteration 4, group size = 25, solution cost = 3527785, remaining time = 121.638
+Iteration 5, group size = 60, solution cost = 3527785, remaining time = 109.554
+Iteration 6, group size = 28, solution cost = 3527785, remaining time = 96.7335
+Iteration 7, group size = 512, solution cost = 3527785, remaining time = 84.0257
+Iteration 8, group size = 64, solution cost = 3527745, remaining time = 74.182
+Iteration 9, group size = 256, solution cost = 3527745, remaining time = 62.1752
+Iteration 10, group size = 512, solution cost = 3527745, remaining time = 50.6812
+Iteration 11, group size = 6, solution cost = 3527606, remaining time = 42.5618
+Iteration 12, group size = 5, solution cost = 3527606, remaining time = 35.1875

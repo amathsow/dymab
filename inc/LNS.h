@@ -52,7 +52,7 @@ private:
     double initial_decayWindow; // New member variable
     bool initial_decayWindow_set = false;
     
-    double temperature = 10000;  // Temperature parameter for Boltzmann distribution
+    double temperature = 500;  // Temperature parameter for Boltzmann distribution
     
     // Add these new method declarations
     double calculatePathEntropy(const Agent& agent);

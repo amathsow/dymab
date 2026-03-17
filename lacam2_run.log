@@ -1,0 +1,45 @@
+Running LaCAM* on NewYork_0_1024 with k=3500, t=500s ...
+solved: 501267ms	makespan: 1842 (lb=1840, ub=1.01)	sum_of_costs: 3734402 (lb=3025291, ub=1.24)	sum_of_loss: 3048146 (lb=3025291, ub=1.01)
+NewYork_0_1024,3500,3734402,NO_DATA,501267,1
+  -> SOC=3734402, AUC=NO_DATA, time=501267ms, solved=1
+
+Running LaCAM* on Moscow_0_1024 with k=3500, t=500s ...
+solved: 500993ms	makespan: 1931 (lb=1928, ub=1.01)	sum_of_costs: 3797786 (lb=3078243, ub=1.24)	sum_of_loss: 3100574 (lb=3078243, ub=1.01)
+Moscow_0_1024,3500,3797786,NO_DATA,500993,1
+  -> SOC=3797786, AUC=NO_DATA, time=500993ms, solved=1
+
+Running LaCAM* on Sydney_0_1024 with k=3500, t=500s ...
+solved: 501253ms	makespan: 1902 (lb=1902, ub=1)	sum_of_costs: 3821288 (lb=3034313, ub=1.26)	sum_of_loss: 3061268 (lb=3034313, ub=1.01)
+Sydney_0_1024,3500,3821288,NO_DATA,501253,1
+  -> SOC=3821288, AUC=NO_DATA, time=501253ms, solved=1
+
+Running LaCAM* on Boston_0_1024 with k=3500, t=500s ...
+solved: 501409ms	makespan: 1880 (lb=1880, ub=1)	sum_of_costs: 3658536 (lb=3053959, ub=1.2)	sum_of_loss: 3078687 (lb=3053959, ub=1.01)
+Boston_0_1024,3500,3658536,NO_DATA,501409,1
+  -> SOC=3658536, AUC=NO_DATA, time=501409ms, solved=1
+
+Running LaCAM* on warehouse-20-40-10-2-2 with k=3500, t=500s ...
+solved: 503193ms	makespan: 473 (lb=473, ub=1)	sum_of_costs: 1069886 (lb=630037, ub=1.7)	sum_of_loss: 767312 (lb=630037, ub=1.22)
+warehouse-20-40-10-2-2,3500,1069886,NO_DATA,503193,1
+  -> SOC=1069886, AUC=NO_DATA, time=503193ms, solved=1
+
+Running LaCAM* on Paris_0_1024 with k=3500, t=500s ...
+solved: 500634ms	makespan: 1867 (lb=1867, ub=1)	sum_of_costs: 3616782 (lb=2988935, ub=1.22)	sum_of_loss: 3014974 (lb=2988935, ub=1.01)
+Paris_0_1024,3500,3616782,NO_DATA,500634,1
+  -> SOC=3616782, AUC=NO_DATA, time=500634ms, solved=1
+
+Running LaCAM* on Shanghai_0_1024 with k=3500, t=500s ...
+solved: 500304ms	makespan: 1939 (lb=1939, ub=1)	sum_of_costs: 3868832 (lb=3078166, ub=1.26)	sum_of_loss: 3100974 (lb=3078166, ub=1.01)
+Shanghai_0_1024,3500,3868832,NO_DATA,500304,1
+  -> SOC=3868832, AUC=NO_DATA, time=500304ms, solved=1
+
+Done. Results saved to lacam2_large_scale_results.csv
+
+map,agents,soc,auc,comp_time_ms,solved
+NewYork_0_1024,3500,3734402,NO_DATA,501267,1
+Moscow_0_1024,3500,3797786,NO_DATA,500993,1
+Sydney_0_1024,3500,3821288,NO_DATA,501253,1
+Boston_0_1024,3500,3658536,NO_DATA,501409,1
+warehouse-20-40-10-2-2,3500,1069886,NO_DATA,503193,1
+Paris_0_1024,3500,3616782,NO_DATA,500634,1
+Shanghai_0_1024,3500,3868832,NO_DATA,500304,1
