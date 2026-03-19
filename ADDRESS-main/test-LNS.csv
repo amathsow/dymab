@@ -1,5 +1,0 @@
-runtime,solution cost,initial solution cost,lower bound,sum of distance,iterations,group size,runtime of initial solution,restart times,area under curve,LL expanded nodes,LL generated,LL reopened,LL runs,preprocessing runtime,solver name,instance name,success,selected_neighbor,neighbor_size
-60.0041,34685,36456,-1,34600,3797,5.14489,0.143209,0,7566.71,12756762,28843513,27468,19728,0.785672,LNS(PP;PP),den520d.map-scen-random/den520d-random-1.scen,1,0,8
-60.0057,85531,96424,-1,84864,1670,6.56081,0.624281,0,126988,10228426,24398649,437304,11441,1.95284,LNS(PP;PP),den520d.map-scen-random/den520d-random-1.scen,1,0,8
-60.0033,140126,160687,-1,133099,879,7.49089,1.38537,0,851970,6194122,14061773,742794,7375,3.04296,LNS(PP;PP),den520d.map-scen-random/den520d-random-1.scen,1,0,8
-60.0008,35525,38328,-1,35485,3946,4.80152,0.158525,0,6653.34,12846263,30311547,26599,19141,0.788956,LNS(PP;PP),den520d.map-scen-random/den520d-random-2.scen,1,0,8

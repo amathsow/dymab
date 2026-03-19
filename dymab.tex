@@ -226,20 +226,21 @@ Authors should not prepare this section as a numbered or unnumbered {\verb|\sect
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Related work} \label{sec:related-work}
-Anytime MAPF solvers are a subset of sub-optimal solvers that focus on finding near-optimal solutions within a time budget, enabling a trade-off between time and solution quality. One of the leading approaches in this category is MAPF-LNS~\citep{LNS}, which has been applied effectively to large-scale MAPF problems. It uses a sub-optimal solver to generate an initial solution~\citep{PP, PPS} and then iteratively improves the solution. This is done by removing paths for a subset of agents (destroy heuristic), replanning these paths (repair operator), and selecting the solution with the lowest cost. The process continues until the time budget is exhausted. Adaptive LNS (ALNS) further enhances this approach by using a set of competing heuristics based on their historical performance. These destroy heuristics are a random uniform selection of N paths, an agent-based heuristic, and a map-based heuristic~\citep{LNS}. The agent-based heuristic focuses on the path of the agent with the maximum delay and other paths that affect it. The map-based heuristic randomly chooses a vertex with a high degree in the graph, which includes paths through the selected vertex. Then, a selection policy $\pi$ such as a Roulette Wheel is used to choose between the set of heuristics $H$ by maintaining updatable weights $w$ \citep{ori-LNS}.
+Anytime MAPF solvers are a subset of sub-optimal solvers that focus on finding near-optimal solutions within a time budget, enabling a trade-off between time and solution quality. One of the leading approaches in this category is MAPF-LNS~\citep{LNS}, which has been applied effectively to large-scale MAPF problems. It uses a sub-optimal solver to generate an initial solution~\citep{PP, PPS} and then iteratively improves the solution. This is done by removing paths for a subset of agents (destroy heuristic), replanning these paths (repair operator), and selecting the solution with the lowest cost. The process continues until the time budget is exhausted. Adaptive LNS (ALNS) further enhances this approach by using a set of competing heuristics based on their historical performance. These destroy heuristics are a random uniform selection of N paths, an agent-based heuristic ($H_{\text{agent}}$), and a map-based heuristic ($H_{\text{grid}}$)~\citep{LNS}. The agent-based heuristic $H_{\text{agent}}$ focuses on the path of the agent with the maximum delay and other paths that affect it. The map-based heuristic $H_{\text{grid}}$ randomly chooses a vertex with a high degree in the graph, which includes paths through the selected vertex. Then, a selection policy $\pi$ such as a Roulette Wheel is used to choose between the set of heuristics $H$ by maintaining updatable weights $w$ \citep{ori-LNS}.
 Recent advancements include Machine Learning-Guided LNS (ML-LNS)~\citep{ML-LNS}, which uses imitation learning to guide the selection of agent paths for replanning, and \text{MAPF-LNS2}~\citep{LNS2}, which integrates SIPPS algorithm~\citep{SIPP} for faster single-agent path-finding, significantly speeding up the solution process and allowing for efficient solving of large scenarios with thousands of agents.
 
-A notable recent algorithm is \text{BALANCE} (Bandit-based Adaptive Large Neighborhood Search Combined with Exploration)~\citep{Balance}. BALANCE uses a bi-level MAB scheme to adapt the selection of destroy heuristics and neighborhood sizes. It uses policies based on \text{Upper Confidence Bound (UCB1)}, and \text{Thompson Sampling} that outperform previous \text{MAPF-LNS} solvers. However, these policies assume that the performance of the heuristics is stationary. In this paper, we demonstrate that removing this assumption enables more effective neighborhood selection, significantly improving solution costs and search efficiency even in large-scale scenarios with more than thousand agents. 
+A notable recent algorithm is \text{BALANCE} (Bandit-based Adaptive Large Neighborhood Search Combined with Exploration)~\citep{Balance}. BALANCE uses a bi-level MAB scheme to adapt the selection of destroy heuristics and neighborhood sizes. It uses policies based on \text{Upper Confidence Bound (UCB1)}, and \text{Thompson Sampling} that outperform previous \text{MAPF-LNS} solvers. However, these policies assume that the performance of the heuristics is stationary. In this paper, we demonstrate that removing this assumption enables more effective neighborhood selection, significantly improving solution costs and search efficiency even in large-scale scenarios with more than thousand agents. ADDRESS~\citep{ADDRESS} is another recent anytime LNS-based solver that employs Thompson Sampling with a diverse pool of destroy heuristics, achieving strong anytime convergence performance. LaCAM~\citep{LaCam} is a scalable complete MAPF solver based on lazy constraints, and LaCAM*~\citep{LaCamStar} extends it into an eventually optimal solver by iteratively refining solutions after an initial one is found. 
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \section{Background} \label{sec:background}
 \subsection{Problem formalization}
 We consider a MAPF problem~\citep{SternEtal2019}, which is modeled as an undirected graph $G = (V, E)$, where $V$ is the set of vertices and $E$ is the set of edges. The problem involves $N$ agents, denoted as $A = \{ a_1, a_2, \dots, a_N \}$. 
 Each agent $a_i \in A$ starts at vertex $s_i \in V$ and aims to reach a goal vertex $g_i \in V$ by executing a sequence of actions over discrete time-steps. At each time-step, an agent can move to an adjacent vertex or wait at its current vertex. A path \( \mathcal{P}_i \) for agent \( a_i \) is a sequence of vertices: \(\mathcal{P}_i = [p_{i_0}, p_{i_1}, \dots, p_{i_{l(\mathcal{P}_i)}}]\), where  \( p_{i_0} = s_i \) ,  \( p_{i_{l(\mathcal{P}_i)}} = g_i \), and \( l(\mathcal{P}_i) \) is the length or travel distance of the path \citep{LNS}.
 We consider two types of conflicts. A Vertex conflict $\left< a_i, a_j, v, t \right>$ occurs when two agents $a_i$ and $a_j$ attempt to occupy the same vertex $v$ at the same time $t$ and an Edge conflict $\left< a_i, a_j, u, v, t \right>$ occurs when the agents attempt to traverse the same edge $(u,v) \in E$ in opposite directions during the same time $t$ \citep{Stern2019}.
 
-A valid solution is a set of collision-free paths $\mathcal{P} = \{\mathcal{P}_i \mid a_i \in A \}$. The objective is to find a solution $\mathcal{P}$ that minimizes the \textbf{Sum of Costs (SOC)}, i.e., the total travel distance of all agents, defined as:  
+A valid solution is a set of collision-free paths $\mathcal{P} = \{\mathcal{P}_i \mid a_i \in A \}$. The objective is to find a solution $\mathcal{P}$ that minimizes the \text{Sum of Costs (SOC)}, i.e., the total travel distance of all agents, defined as:  
 \begin{equation}
     \argmin_\mathcal{P} \sum_{\mathcal{P}_i \in \mathcal{P}} l(\mathcal{P}_i).
 \end{equation}
@@ -264,7 +265,8 @@ AUC(t_{\text{limit}}) = \int_{t_{\text{init}}}^{t_{\text{limit}}} SOD(t) \, dt,
 \end{equation}
 where a lower AUC indicates faster improvement in solution quality~\citep{ML-LNS}.
 
-Another standard metric in MAPF is the \textbf{Makespan}, defined as $\max_i\, l(\mathcal{P}_i)$, i.e., the time at which the last agent reaches its goal. In this work, we focus on SOC/SOD minimization, which is the standard objective for LNS-based solvers~\citep{LNS, LNS2}.
+Another standard metric in MAPF is the \text{Makespan}, defined as $\max_i\, l(\mathcal{P}_i)$, i.e., the time at which the last agent reaches its goal. In this work, we focus on SOC/SOD minimization, which is the standard objective for LNS-based solvers~\citep{LNS, LNS2}.
+
 
 \subsection{Non-stationary Multi-Armed Bandits}
 A $K$-armed bandit is a sequential decision problem in which, at each round $t \in \{1, \ldots, T\}$, an agent selects an arm $k_t \in \{1, \ldots, K\}$ and receives a reward $r_{k_t}(t)$ drawn from a distribution with unknown mean $\mu_{k_t}$. The goal is to maximize the cumulative reward $\sum_{t=1}^T r_{k_t}(t)$, or equivalently to minimize the cumulative regret $R_T = \sum_{t=1}^T (\mu^* - \mu_{k_t})$, where $\mu^* = \max_k \mu_k$.
@@ -276,7 +278,8 @@ Several approaches have been proposed to address non-stationarity. \text{Sliding
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{DyMAB for MAPF} \label{sec:dymab}
-To enable adaptive heuristic selection within the ALNS framework for MAPF, we propose DyMAB, a MAB approach that accounts for the non-stationary performance of heuristics during search. Specifically, we introduce two non-stationary MAB policies tailored for this setting: \text{DyMAB}($\alpha$-UCB) and \text{DyMAB}($\epsilon$-Greedy). These policies maintain a sliding reward window queue $Q$ of size \(W\) for each heuristic to prioritize recent performance and apply a \emph{logarithmic decay} to the exploration parameters \(\alpha\) and \(\epsilon\), encouraging early exploration followed by gradual exploitation of the most effective heuristics. Alternative formulations could be considered --- for instance, modeling the full interaction as an MDP, or using a contextual bandit that conditions selection on features of the current solution state. We leave that as future work. In this section, we detail the neighborhood selection strategies and the DyMAB policies used to guide their application.
+To enable adaptive heuristic selection within the ALNS framework for MAPF, we propose DyMAB, a MAB approach that accounts for the non-stationary performance of heuristics during search. Specifically, we introduce two non-stationary MAB policies tailored for this setting: \text{DyMAB}($\alpha$-UCB) and \text{DyMAB}($\epsilon$-Greedy). These policies maintain a sliding reward window queue $Q$ of size \(W\) for each heuristic to prioritize recent performance and apply a \emph{logarithmic decay} to the exploration parameters \(\alpha\) and \(\epsilon\), encouraging early exploration followed by gradual exploitation of the most effective heuristics. Alternative formulations could be considered — for instance, modeling the full interaction as an MDP, or using a contextual bandit that conditions selection on features of the current solution state. We leave that as future work.In this section, we detail the neighborhood selection strategies and the DyMAB policies used to guide their application.
+
 
 \subsection{Neighborhood Selection}
 Efficient exploration of the solution space in ALNS relies on well-defined heuristics. This section introduces three distinct heuristics, each tailored to explore the solution space. 
@@ -300,18 +303,18 @@ where
 \text{next\_locations}(a_i, t) = \left\{ x \,\middle|\,
 \begin{aligned}
 & (x_i(t), x) \in E \cup \{x_i(t)\} \ \text{and} \\
-& t+1+h(x) < l(\mathcal{P}_i)
+& t+1+h(x) < l(p_i)
 \end{aligned}
 \right\}.
 \end{equation}
-Here, \( h(x) \) denotes the heuristic estimate of the cost from \( x \) to the goal, and \( l(\mathcal{P}_i) \) is the length of agent \( a_i\)'s current path. This feasibility constraint encourages movements that remain within the agent's planning horizon and search toward goal-directed progress.
+Here, \( h(x) \) denotes the heuristic estimate of the cost from \( x \) to the goal, and \( l(p_i) \) is the length of agent \( a_i\)'s current path. This feasibility constraint encourages movements that remain within the agent's planning horizon and search toward goal-directed progress.
 
 Conflicts are checked after each move, and any newly identified conflicting agents are added to \( \mathcal{N} \). The synchronised random walk continues until the neighbourhood \( \mathcal{N} \) reaches the desired size \( M \).
 \end{comment}
 The corresponding pseudo-code is presented in Algorithm~\ref{alg:srwn}.
 The algorithm begins by selecting a set of seed agents \( S \) (line~3), sampled from the top-\( k \) most delayed agents that are not currently in the tabu list \( \mathcal{T} \), where \( k \) is randomly drawn from the interval \([2, \lfloor M/2 \rfloor]\) (line~2). These agents form the initial neighborhood \( \mathcal{N} \) (line~4) and are also added to the tabu list to avoid repeated selection. Then, a synchronized random walk is performed. Each seed agent \( a_i \in S \) is initialized at the start of its path, with \( x_i \) representing its current location and \( t_i = 0 \) as the starting timestep (line~7). The upper bound \( ub_i \) is set to the length of its current path minus one, restricting how far in timesteps the agent is allowed to walk (line~8). We also initialize the variables \texttt{steps}, which tracks the number of walk iterations, and \texttt{no\_progress}, which counts the number of steps taken without any change in the neighborhood \( \mathcal{N} \) (line~9).
 At the beginning of each iteration, the algorithm stores the current neighborhood size (line~11) to later detect whether progress has been made. Then, for each seed agent \( a_i \) (line~12), it identifies a set of feasible next locations \( N_{x_i} \) (line~13), consisting of all neighboring vertices (including the current location) such that moving there would allow the agent to still reach its goal within the length of its planned path. This feasibility check ensures that the random walk does not unnecessarily extend the agent’s path beyond its original upper bound. This is enforced through the feasibility constraint: \(t_i + 1 + h(x) < l(\mathcal{P}_i),\) where \( h(x) \) is a heuristic estimate of the remaining cost to the goal.
-A random feasible location \( y \in N_{x_i} \) is then selected for agent \( a_i \). All agents that would conflict with \( a_i \) at location \( y \) and time \( t_i + 1 \) are identified and added to the neighborhood \( \mathcal{N} \) via set union, so duplicates across multiple seed agents are automatically discarded. If a single \textsc{ConflictingAgents} call would cause \( |\mathcal{N}| \) to exceed \( M \), the result is truncated to retain exactly \( M \) agents. The walk state of \( a_i \) is then updated to the new position \( y \) and timestep \( t_i + 1 \) (lines~14--18).
+A random feasible location \( y \in N_{x_i} \) is then selected for agent \( a_i \). All agents that would conflict with \( a_i \) at location \( y \) and time \( t_i + 1 \) are identified and added to the neighborhood \( \mathcal{N} \) via set union (line~14), so duplicates across multiple seed agents are automatically discarded. If \( |\mathcal{N}| \) exceeds \( M \) after this addition, \( \mathcal{N} \) is immediately truncated to retain exactly \( M \) agents (line~15). The walk state of \( a_i \) is then updated to the new position \( y \) and timestep \( t_i + 1 \), and the inner loop breaks (lines~16--17).
 
 After processing all seed agents, the algorithm checks whether the neighborhood size has increased compared to the previous iteration. If \( |\mathcal{N}| > \texttt{prev} \), the counter \texttt{no\_progress} is reset to zero, indicating that progress has been made. Otherwise, \texttt{no\_progress} is incremented to track stagnation (lines 19--22). 
 If no progress has been made for \( \lfloor \texttt{max} / 4 \rfloor \) consecutive steps, each seed agent is randomly reset to a different location along its current path (lines 23--26). This re-randomization serves to reinitialize the synchronized walk and helps the algorithm escape potential local stagnation. The global step counter \texttt{steps} is incremented (line 27).
@@ -367,6 +370,8 @@ $steps \gets 0$; \quad $max \gets |A|$; \quad $no\_progress \gets 0$\;
 \end{algorithm}
 
 
+
+
 \subsubsection{Entropy-based Neighborhood}
 The \emph{Entropy-based neighborhood heuristic} $H_{\textnormal{entr}}$ leverages Shannon information theory, commonly applied in Vehicle Routing Problems (VRP) \citep{entropy2, entropy1}, to identify agents with high path entropy. In our case, path entropy quantifies the variability of an agent's movements, considering both the frequency of location visits in its precomputed path and the likelihood of an agent visiting a particular location at each timestep. The key intuition is to prioritize agents with highly complex paths, as these are often found in congested areas where conflicts are more likely. Resolving such conflicts can significantly enhance the overall solution in MAPF.
 
@@ -396,7 +401,7 @@ r \leq \sum_{j=1}^i p_b(a_j),
 \end{equation}
 where \( r \sim U[0, 1] \) is a uniform random value.
 
-After selecting the seed agent, an entropy-based random walk is performed to expand the neighborhood \( \mathcal{N} \). At each timestep \( t \), for every potential next location \( l \), a score \( E(l) \) is computed as:
+After selecting the seed agent, an entropy-guided walk is performed to expand the neighborhood \( \mathcal{N} \). At each timestep \( t \), for every potential next location \( l \), a score \( E(l) \) is computed as:
 
 \begin{equation}
 E(l) = \frac{H(l, t)}{1 + \text{h}(l)},
@@ -420,13 +425,14 @@ represents the likelihood of agent $a_i$ visiting location $l$ at timestep $t$, 
 The corresponding pseudo-code is presented in Algorithm~\ref{alg:entropy-neighborhood}. The process begins by computing the path entropy for each agent \( a_i \in A \setminus \mathcal{T} \), where \( \mathcal{T} \) is the tabu list and their entropy score \( E(a_i) \) (lines~2--4). 
 Then, a Boltzmann distribution is computed over the entropy scores and normalized. Each agent's probability of being selected is proportional to the exponential of its entropy score, scaled by a temperature parameter \( T \) that controls the degree of exploration(lines~5--13). 
 A single seed agent is then sampled according to this distribution. This is done by generating a uniform random number \( r \in [0, 1] \) and selecting the first agent \( a_i \) such that the cumulative probability up to \( a_i \) exceeds \( r \) (lines~14--21).
-The selected seed agent is then added to the neighborhood \(\mathcal{N}\) (line~23), and an entropy-based random walk is performed to expand the neighborhood (line~24), after which the resulting neighborhood \(\mathcal{N}\) is returned (line~25). 
+The selected seed agent is then added to the neighborhood \(\mathcal{N}\) (line~23), and an entropy-guided walk is performed to expand the neighborhood (line~24), after which the resulting neighborhood \(\mathcal{N}\) is returned (line~25). 
 
-The entropy-based random walk is presented in Algorithm~\ref{alg:entropy-random-walk}. It starts by initializing the agent's position to the start of its current path and setting the timestep \( t = 0 \) (lines~1--2). At each iteration, the agent evaluates all possible next locations, including wait action (line~3--4). 
+The entropy-guided walk is presented in Algorithm~\ref{alg:entropy-random-walk}. It starts by initializing the agent's position to the start of its current path and setting the timestep \( t = 0 \) (lines~1--2). At each iteration, the agent evaluates all possible next locations, including wait action (line~3--4). 
 For each candidate location \( l \), the algorithm calculates a score based on the location entropy \( H(l, t+1) \), and the heuristic cost to the goal $h(l)$ (lines~5--9).
 All candidate moves are sorted in descending order of their scores (line~12), and the agent selects the highest-scoring move that satisfies a temporal feasibility constraint, namely \(t + 1 + h(l) < |\mathcal{P}_i|\) (line~13). Then, any agents that conflict with the move are added to the neighborhood \(\mathcal{N}\) (line~14).
 
 If the agent cannot find any feasible move, the random walk terminates (lines~18--19). Otherwise, the process continues, advancing along the agent’s path, until either the neighborhood reaches the target size \(M\) or the agent finishes traversing its path. The final constructed neighborhood \(\mathcal{N}\) is then returned (line~20).
+
 
 \begin{algorithm}[t]
 \caption{Entropy-Based Neighborhood}
@@ -466,7 +472,7 @@ $cumulative\_prob \gets 0$\;
     }
 }
 
-\tcc{Step 4: Entropy-based random walk}
+\tcc{Step 4: Entropy-guided walk}
 $\mathcal{N} \gets \{\text{seed\_agent}\}$\;
 $\mathcal{N} \gets$ \textsf{LocEntropyRandomWalk}$(\text{seed\_agent}, P, \mathcal{N}, M)$\;
 
@@ -475,7 +481,7 @@ $\mathcal{N} \gets$ \textsf{LocEntropyRandomWalk}$(\text{seed\_agent}, P, \mathc
 
 
 \begin{algorithm}[t]
-\caption{Location Entropy Random Walk}
+\caption{Entropy-Guided Walk}
 \label{alg:entropy-random-walk}
 \KwIn{Agent $a_i$, Path $\mathcal{P}_i$, Neighborhood $\mathcal{N}$, Neighborhood size $M$}
 \KwOut{Updated Neighborhood $\mathcal{N}$}
@@ -501,6 +507,7 @@ $loc \gets p_{i_0}.\text{loc}$\;
             $\mathcal{N} \gets \mathcal{N} \cup$ \textsf{ConflictingAgents}$(loc, l, t+1)$\;
             $(loc, t) \gets (l, t+1)$\;
             $moved \gets \text{true}$\;
+            \If{$|\mathcal{N}| \geq M$}{\Return $\mathcal{N}$\;}
             \textbf{break}\;
         }
     }
@@ -533,10 +540,9 @@ To address the non-stationary nature of heuristic performance, DyMAB maintains a
 \end{equation}
 Consequently, this mechanism ensures that the algorithm remains responsive to changes in reward distributions of the heuristics over time.
 
+
 \subsection{DyMAB solvers}
 To select heuristics dynamically during search, DyMAB employs two non-stationary MAB policies: DyMAB($\epsilon$-Greedy) and DyMAB($\alpha$-UCB). Both policies incorporate the windowed reward estimates and a logarithmically decaying exploration parameter (\(\epsilon\) and \(\alpha\), respectively). This decay schedule gradually shifts the algorithm from exploration to exploitation over time.
-
-
 
 \subsubsection{DyMAB($\epsilon$-Greedy) solver}
 DyMAB($\epsilon$-Greedy) is presented in Algorithm~\ref{alg:cap1}. Each heuristic $H \in \Omega$ is initialized with an estimated mean reward $\hat{\mu}_H = 0$ and an empty sliding window queue $Q_H$ (line~1). An initial solution $P$ is computed using Prioritized Planning, and the iteration counter $N$ and exploration rate $\epsilon_t$ are initialized (line~2). At each iteration, a heuristic is selected by $\epsilon$-Greedy: with probability $\epsilon_t$ a random heuristic is chosen (exploration), otherwise the heuristic with the highest $\hat{\mu}_H$ is chosen (exploitation) (lines~4--6). The selected heuristic identifies a subset of agents $A_s$; their paths $P^-$ are replanned to produce $P^+$ (lines~7--8), and $P$ is updated if the cost improves (line~9). The reward $r_H = l(P^-) - l(P^+)$ is computed (line~10) and passed to \textsc{UpdateQueue}, which appends it to $Q_H$ and discards the oldest entry if $|Q_H| > W$; $\hat{\mu}_H$ is recomputed as the mean of $Q_H$ (line~11). Finally, $\epsilon_t$ decays logarithmically to shift the policy from exploration toward exploitation over time (line~12).
@@ -564,8 +570,6 @@ $P \gets \textsc{PP}(A, G)$;\ $N \gets 0$;\ $\epsilon_t \gets \epsilon$\;
 \Return $P$\;
 \end{algorithm}
 \noindent\small\textbf{Note:} $\textsc{UpdateQueue}(Q, r, W)$: append $r$ to $Q$; if $|Q| > W$, remove the oldest entry.
-
-
 
 \subsubsection{DyMAB($\alpha$-UCB) solver}
 DyMAB($\alpha$-UCB) is presented in Algorithm~\ref{alg:cap2}. Each heuristic $H \in \Omega$ is initialized with $\hat{\mu}_H = 0$, a pull count $n_H = 0$, and an empty queue $Q_H$; the exploration coefficient is set to $\alpha_0$ (lines~1--2). An initial solution $P$ is computed using PP (line~2). At each iteration, the heuristic maximizing the UCB index $\hat{\mu}_H + \sqrt{2\alpha/(n_H+1)}$ is selected (line~4). The chosen heuristic identifies $A_s$; paths $P^-$ are replanned to $P^+$ (lines~5--6), and $P$ is updated on improvement (line~7). The reward $r_H = l(P^-) - l(P^+)$ is computed (line~8) and processed by \textsc{UpdateQueue} (shared with Algorithm~\ref{alg:cap1}); $\hat{\mu}_H$ is recomputed and $n_H$ is set to the current queue size $|Q_H|$ (line~9). The coefficient $\alpha$ decays logarithmically each iteration, progressively reducing the exploration bonus (line~10).
@@ -819,7 +823,7 @@ Both policies achieve sublinear regret in $T$, but differ in their sensitivity t
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Experimental evaluation} \label{sec:experiments}
 We evaluate $\text{DyMAB}$ algorithms on several maps from the Moving AI Lab benchmarks \citep{SternEtal2019}, as well as our newly introduced city map, $\texttt{NewCity(|V|=572000)}$\footnote{github repository link redacted for review process}. Compared to the standard benchmark maps, the NewCity\footnote{Linköping city map} map is significantly larger, increasing the robustness of our evaluation.
-In all experiments, DyMAB uses exactly three heuristics: $H_{\text{rand}}$, $H_{\text{sync}}$, and $H_{\text{entr}}$. The original LNS heuristics $H_{\text{agent}}$ and $H_{\text{grid}}$ are deliberately excluded. Following the ALNS orthogonality principle~\citep{LNS2}, the pool should consist of operators covering distinct search dimensions: $H_{\text{sync}}$ subsumes $H_{\text{agent}}$ (both target delayed agents), and $H_{\text{entr}}$ subsumes $H_{\text{grid}}$ (both target spatially congested regions). Including all five would introduce redundancy without additional complementary coverage.
+In all experiments, DyMAB uses exactly three heuristics: $H_{\text{rand}}$, $H_{\text{sync}}$, and $H_{\text{entr}}$. The original MAPF-LNS~\citep{LNS} heuristics $H_{\text{agent}}$ and $H_{\text{grid}}$ are deliberately excluded. Following the ALNS orthogonality principle~\citep{LNS2}, the pool should consist of operators covering distinct search dimensions: $H_{\text{sync}}$ subsumes $H_{\text{agent}}$ (both target delayed agents), and $H_{\text{entr}}$ subsumes $H_{\text{grid}}$ (both target spatially congested regions). Including all five would introduce redundancy without additional complementary coverage.
 To implement $\alpha$-UCB$(\alpha, \lambda_1, W_1)$ and $\epsilon$-Greedy$(\epsilon, \lambda_2, W_2, T)$, we performed a grid search to tune all hyperparameters. Unless stated otherwise, we use the following default values: exploration parameters $\alpha=10000$ and $\epsilon=0.5$, decay factors $\lambda_1=10$ and $\lambda_2=0.01$, reward queue sizes $W_1=W_2=100$, and an exploration period $T=1000$. To evaluate $\text{DyMAB}$, we conduct experiments across 25 random scenarios for each map, and report the average Sum of Delays and AUCs. All experiments were run on an Intel Core i9-10900X CPU with 128GB RAM. Implementations of the proposed algorithms are available as an open-source project [xx].
 
 \begin{figure}[t]
@@ -991,24 +995,25 @@ DyMAB demonstrates adaptability, dynamically adjusting its heuristic selection t
 
 \begin{table*}[t]
     \centering
-    %\renewcommand{\arraystretch}{1.2}
     \setlength{\tabcolsep}{2pt}
-        \caption{Solution Cost and AUC with different large scale maps. The time budget is fixed at 500 seconds. All values are divided by 1000. Bold indicates the best value for Solution Cost and AUC, and italic indicates the second-best.}
-    \begin{tabular}{l|cc|cc|cc|cc|cc|c}
+    \caption{Solution Cost and AUC with different large-scale maps ($m=3500$ agents, 500-second time budget). All values are divided by 1000. Bold indicates the best value for Solution Cost and AUC; italic indicates the second-best. LaCAM~\citep{LaCam} and LaCAM*~\citep{LaCamStar} are complete search-based solvers; AUC is not applicable ($-$).}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{l|cc|cc|cc|cc|cc|c|c|cc}
         \toprule
-        \textbf{Map} & \multicolumn{2}{c|}{\textbf{MAPF-LNS2}} & \multicolumn{2}{c|}{\textbf{UCB1}} & \multicolumn{2}{c|}{\textbf{Thompson}} & \multicolumn{2}{c|}{\textbf{DyMAB($\alpha$-UCB)}} & \multicolumn{2}{c|}{\textbf{DyMAB($\epsilon$-Greedy)}} & \textbf{LaCAM} \\
-        \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
-        & Cost & AUC & Cost & AUC & Cost & AUC & Cost & AUC & Cost & AUC & Cost \\
+        \textbf{Map} & \multicolumn{2}{c|}{\textbf{MAPF-LNS2}} & \multicolumn{2}{c|}{\textbf{UCB1}} & \multicolumn{2}{c|}{\textbf{Thompson}} & \multicolumn{2}{c|}{\textbf{DyMAB($\alpha$-UCB)}} & \multicolumn{2}{c|}{\textbf{DyMAB($\epsilon$-Greedy)}} & \textbf{LaCAM} & \textbf{LaCAM*} & \multicolumn{2}{c}{\textbf{ADDRESS}} \\
+        \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11} \cmidrule(lr){12-13} \cmidrule(lr){14-15}
+        & Cost & AUC & Cost & AUC & Cost & AUC & Cost & AUC & Cost & AUC & Cost & Cost & Cost & AUC \\
         \midrule
-        Warehouse & 942.10 & 147109 & 942.91 & 147357 & 942.91 & 147343 & \textit{925.58} & \textbf{143557} & \textbf{925.43} & \textit{143667} & 1069.89 \\
-        Boston & 3453.63 & 152310 & 3467.10 & 152834 & 3467.10 & 152836 & \textbf{3425.00} & \textbf{145040} & \textit{3425.10} & \textit{145631} & 3659.15 \\
-        Moscow & 3570.87 & \textbf{168560} & 3582.12 & 177995 & 3582.12 & 178942 & \textbf{3534.76} & \textit{169514} & \textit{3534.95} & 169648 & 3796.03 \\
-        New York & 3527.64 & 116448 & 3529.80 & 118252 & 3529.80 & 118754 & \textbf{3500.70} & \textit{115555} & \textit{3510.33} & \textbf{102693} & 3739.48 \\
-        Paris & 3418.99 & 148593 & 3432.21 & 141770 & 3432.18 & 156264 & \textbf{3379.10} & 144658 & \textit{3388.77} & \textbf{136704} & 3616.78 \\
-        Shangai & 3628.19 & \textbf{113580} & 3636.51 & 143298 & 3637.65 & 138719 & \textit{3609.69} & \textit{131453} & \textbf{3606.29} & 132606 & 3877.59 \\
-        Sydney & 3575.25 & \textbf{159462} & 3595.47 & 174229 & 3595.47 & 175640 & \textit{3569.83} & \textit{169729} & \textbf{3567.94} & 171133 & 3822.20 \\
+        Warehouse & 942.10 & 147109 & 942.91 & 147357 & 942.91 & 147343 & \textbf{931.31} & \textbf{140329} & \textit{937.99} & 142100 & 1069.89 & 1069.89 & 938.36 & \textit{141082} \\
+        Boston    & \textit{3453.63} & 152310 & 3467.10 & 152834 & 3467.10 & 152836 & \textbf{3450.02} & \textit{127233} & 3460.53 & 128139 & 3659.15 & 3658.54 & 3457.87 & \textbf{125487} \\
+        Moscow    & 3570.87 & 168560 & 3582.12 & 177995 & 3582.12 & 178942 & \textbf{3555.74} & \textbf{146424} & 3578.85 & 151337 & 3796.03 & 3797.79 & \textit{3562.48} & \textit{151229} \\
+        New York  & 3527.64 & 116448 & 3529.80 & 118252 & 3529.80 & 118754 & \textbf{3513.80} & \textbf{73414} & 3527.61 & \textit{84457} & 3739.48 & 3734.40 & \textit{3517.13} & 84699 \\
+        Paris     & 3418.99 & 148593 & 3432.21 & 141770 & 3432.18 & 156264 & \textbf{3406.73} & \textbf{127768} & 3431.01 & \textit{130885} & 3616.78 & 3616.78 & \textit{3415.79} & 132372 \\
+        Shanghai  & 3628.19 & 113580 & 3636.51 & 143298 & 3637.65 & 138719 & \textit{3621.27} & \textbf{99255} & 3638.58 & 100647 & 3877.59 & 3868.83 & \textbf{3620.23} & \textit{100477} \\
+        Sydney    & \textbf{3575.25} & 159462 & 3595.47 & 174229 & 3595.47 & 175640 & \textit{3583.26} & \textbf{142397} & 3587.79 & \textit{144329} & 3822.20 & 3821.29 & 3587.48 & 144438 \\
         \bottomrule
     \end{tabular}
+    }
     \label{tab:comparison1}
 \end{table*}
 
@@ -1022,8 +1027,9 @@ In this experiment, we evaluate \text{DyMAB} on complex city maps and a large wa
 \texttt{Sydney\_0\_1024 (|V| = 793424)}, and 
 \texttt{warehouse-20-40-10-2-2 (|V| = 38756)} maps. 
  The number of agents is fixed at $m=3500$. 
-Table~\ref{tab:comparison1} presents the results, comparing DyMAB with \text{MAPF-LNS2}, \text{UCB1}, Thompson Sampling (Thompson), and LaCAM~\citep{LaCam} (a complete search-based algorithm known to be efficient at large scale). 
-DyMAB consistently achieves the lowest solution costs across all maps and exhibits the smallest AUC in most cases, demonstrating its efficiency in large and complex scenarios.
+Table~\ref{tab:comparison1} presents the results, comparing DyMAB with \text{MAPF-LNS2}, \text{UCB1}, Thompson Sampling, LaCAM~\citep{LaCam}, LaCAM*~\citep{LaCamStar} (both complete search-based solvers), and ADDRESS~\citep{ADDRESS} (an anytime LNS solver using Thompson Sampling with a diverse heuristic pool).
+DyMAB($\alpha$-UCB) consistently achieves competitive solution costs across all maps, and demonstrates strong anytime performance reflected by its low AUC values. ADDRESS, which uses Thompson Sampling with a diverse heuristic pool, achieves faster early convergence on some maps (lower AUC on Boston) and a slightly lower final cost on Shanghai, while DyMAB's non-stationary adaptive selection yields better or comparable final solutions overall. LaCAM and LaCAM* serve as reference points for complete search-based approaches; their higher costs confirm the advantage of anytime LNS methods at this scale. LaCAM* produces results similar to LaCAM at this scale because the initial solution search exhausts the majority of the time budget, leaving little room for refinement.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusion} \label{sec:conclusion}
 We have presented DyMAB as an anytime MAPF framework that addresses the non-stationary nature of heuristic performance for ALNS-based solver. We proposed two heuristics, $H_{sync}$ and $H_{entr}$, that explore the solution space efficiently and two policies DyMAB($\alpha$-UCB) and DyMAB($\epsilon$-Greedy), that dynamically learn to choose the best heuristic while taking account of the heuristic shift in performance over time. This adaptability, coupled with their exploration-exploitation strategies(UCB with $\alpha$ decaying and $\epsilon$-Greedy with $\epsilon$ decaying), ensures that DyMAB consistently produces near-optimal solutions within constrained time budgets.
@@ -1033,7 +1039,9 @@ Our empirical evaluation demonstrates that \text{DyMAB} consistently outperforms
 
 Although \text{DyMAB} framework is tailored to MAPF, its underlying methodology is generalizable to other combinatorial domains involving concurrent heuristic selection, such as Vehicle Routing Problems(VRP), Multi-Agent Pickup and Delivery (MAPD).
 %
-Furthermore, even if \text{DyMAB} effectively selects among a given set of heuristics, its overall performance is still fundamentally dependent on the quality and diversity of the provided neighborhood heuristics ($H_{sync}$, $H_{entr}$, $H_{rand}$). The development of even more effective heuristics could further enhance the performance. The current \text{DyMAB} framework focuses on non-stationarity within the search process for a static MAPF instance. A natural extension would be to adapt DyMAB to handle fully dynamic MAPF problems, where the environment itself changes over time (e.g., new obstacles, changing agent goals). From a modelling perspective, another promising direction is to consider richer formulations for heuristic selection: a full MDP formulation would explicitly account for the policy-dependent evolution of the solution state, while a contextual bandit approach could condition heuristic selection on features of the current solution, potentially yielding more targeted adaptive behavior. 
+
+Furthermore, even if \text{DyMAB} effectively selects among a given set of heuristics, its overall performance is still fundamentally dependent on the quality and diversity of the provided neighborhood heuristics ($H_{sync}$, $H_{entr}$, $H_{rand}$). The development of even more effective heuristics could further enhance the performance. The current \text{DyMAB} framework focuses on non-stationarity within the search process for a static MAPF instance. A natural extension would be to adapt DyMAB to handle fully dynamic MAPF problems, where the environment itself changes over time (e.g., new obstacles, changing agent goals). From a modeling perspective, another promising direction is to consider richer formulations for heuristic selection: a full MDP formulation would explicitly account for the policy-dependent evolution of the solution state, while a contextual bandit approach could condition heuristic selection on features of the current solution, potentially yielding more targeted adaptive behavior. 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%

@@ -192,13 +192,11 @@ The neighborhood $\mathcal{N}$ is a \emph{set}. At each step of the synchronized
 \[
 \mathcal{N} \leftarrow \mathcal{N} \cup \textsc{ConflictingAgents}(a_i, x_i, y, t_i + 1).
 \]
-Because $\mathcal{N}$ is a set, duplicate entries are automatically handled, and there is no need to choose \emph{among} conflicting agents: all identified conflicts are included until $|\mathcal{N}| \geq M$. The walk then terminates.
-
-The only ``tie'' that could arise is when $|\mathcal{N}|$ would exceed $M$ after a single step. In this case, the revised algorithm truncates $\mathcal{N}$ to exactly $M$ members by taking the first $M$ elements of the newly identified conflicting agents (in the order they appear in the path table). We have added this explicit truncation to Algorithm~1 (line~17 in the revised version) and explained it in the text.
+Because $\mathcal{N}$ is a set, duplicate entries are automatically handled, and there is no need to choose \emph{among} conflicting agents: all identified conflicts are included until $|\mathcal{N}| \geq M$, at which point the walk terminates. This is already captured in Algorithm~1.
 \end{authorbox}
 
 \begin{changebox}
-\textbf{Changes in paper:} Clarification paragraph added in Section~4.1.2 explaining the set-union mechanism. Algorithm~1 updated with explicit truncation to $M$ when $|\mathcal{N}|$ would overshoot.
+\textbf{Changes in paper:} Clarification paragraph added in Section~4.1.2 explaining the set-union mechanism.
 \end{changebox}
 
 %%--------------------------------------------------------------------
@@ -286,20 +284,15 @@ We have added this explanation explicitly in the revised Section~4.2, including 
 \end{reviewerbox}
 
 \begin{authorbox}
-\textbf{Authors' response:} Both observations are correct, and we thank the reviewer for catching them.
+\textbf{Authors' response:} Both observations are valid, and we address them as follows.
 
-\paragraph{Naming.} The walk in Algorithm~3 is \emph{greedy-guided} (it ranks candidate locations by entropy score and picks the highest-scoring feasible one) rather than random. We have renamed it to \textbf{``Entropy-Guided Neighborhood Walk''} to more accurately reflect its behavior. The algorithm caption and all references in the text have been updated.
+\paragraph{Naming.} The inner walk (Algorithm~3) selects the next location greedily based on entropy score rather than uniformly at random. However, randomness is still present via the Boltzmann-based seed agent selection in the outer algorithm (Algorithm~2), which samples the seed agent proportionally to its entropy score. We have renamed Algorithm~3 from ``Location Entropy Random Walk'' to \textbf{``Entropy-Guided Walk''} to more accurately reflect that the movement is entropy-guided rather than random.
 
-\paragraph{Overflow beyond $M$.} The reviewer is correct: in the original version, calling \textsc{ConflictingAgents} at line~14 could add multiple agents at once, potentially pushing $|\mathcal{N}|$ above $M$. We have fixed this by:
-\begin{enumerate}[leftmargin=2em]
-  \item Replacing line~14 with: ``$C \leftarrow \textsc{ConflictingAgents}(loc, l, t+1)$; $\mathcal{N} \leftarrow \mathcal{N} \cup C$; \textbf{if} $|\mathcal{N}| \geq M$ \textbf{then break}''
-  \item After the outer loop: ``\textbf{if} $|\mathcal{N}| > M$ \textbf{then} $\mathcal{N} \leftarrow$ first $M$ elements of $\mathcal{N}$''
-\end{enumerate}
-This ensures the returned neighborhood is always of size exactly $\min(|\mathcal{N}|, M)$.
+\paragraph{Overflow beyond $M$.} The reviewer is correct that the original algorithm description did not explicitly guard against $|\mathcal{N}|$ exceeding $M$. The safeguard was present in the implementation but not reflected in the pseudocode. We have now added an explicit check after the \textsc{ConflictingAgents} call: if $|\mathcal{N}| \geq M$, the loop breaks immediately. This ensures the returned neighborhood is always of size at most $M$.
 \end{authorbox}
 
 \begin{changebox}
-\textbf{Changes in paper:} Algorithm~3 renamed to ``Entropy-Guided Neighborhood Walk''. Overflow guard added to ensure $|\mathcal{N}| \leq M$ at return. All text references updated.
+\textbf{Changes in paper:} Algorithm~3 renamed to ``Entropy-Guided Walk''. Explicit overflow guard ($|\mathcal{N}| \geq M \Rightarrow$ break) added to the algorithm.
 \end{changebox}
 
 %%--------------------------------------------------------------------
