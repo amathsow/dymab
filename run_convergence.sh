@@ -18,9 +18,9 @@ N_SCENARIOS=25
 
 # DyMAB paper defaults
 ALPHA=10000
-EPSILON=0.5
-DECAY_WIN=100
-LAMBDA=10
+EPSILON=1
+DECAY_WIN=10
+LAMBDA=5
 NEIGHBOR_SIZES=5
 
 TIME_BUDGETS="4 16 32 64 128"
@@ -68,12 +68,14 @@ parse_balance_csv() {
     fi
 }
 
+# Columns: runtime, solution_cost, initial_cost, min_f, root_g_value, ...
+# root_g_value (col5) = sum of shortest paths = sum_dist; no "solved" column
 parse_lns_csv() {
-    local csv=$1
-    if [[ -f "$csv" ]]; then
-        local soc=$(tail -1 "$csv" | cut -d',' -f2)
-        local sdist=$(tail -1 "$csv" | cut -d',' -f5)
-        local solved=$(tail -1 "$csv" | cut -d',' -f19)
+    local f=$1
+    if [[ -f "$f" ]]; then
+        local soc=$(tail -1 "$f" | cut -d',' -f2)
+        local sdist=$(tail -1 "$f" | cut -d',' -f5)
+        local solved=$(echo "$soc" | awk '{print ($1+0 > 0) ? 1 : 0}')
         local sod=$(echo "$soc $sdist" | awk '{printf "%.0f", $1 - $2}')
         echo "$soc,$sod,$solved"
     else
@@ -135,7 +137,7 @@ for MAP_NAME in dense Berlin; do
             # --- MAPF-LNS ---
             $LNS -m "$MAP_F" -a "$SCEN_FILE" -o "${OUT_BASE}_lns" \
                 -k $k -t $T -s 0 2>/dev/null
-            res=$(parse_lns_csv "${OUT_BASE}_lns.csv")
+            res=$(parse_lns_csv "${OUT_BASE}_lns")
             echo "$T,$scen_num,MAPF-LNS,$res" >> "$OUT_CSV"
 
             # --- BALANCE UCB1 ---

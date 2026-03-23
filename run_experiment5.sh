@@ -26,9 +26,9 @@ MAP_AGENTS["NewCity"]="100 500 1000 1500 2000"
 
 # DyMAB paper defaults
 ALPHA=10000
-EPSILON=0.5
-DECAY_WIN=100
-LAMBDA=10
+EPSILON=1
+DECAY_WIN=10
+LAMBDA=5
 NEIGHBOR_SIZES=5
 
 # ============================================================
@@ -85,13 +85,16 @@ parse_balance_csv() {
     fi
 }
 
-# Helper: extract SOD from MAPF-LNS CSV (col2=soc, col5=sum_dist, col19=solved — same as BALANCE)
+# Helper: extract SOD from MAPF-LNS output (no .csv extension)
+# Columns: runtime, solution_cost, initial_cost, min_f, root_g_value, iterations, ...
+# root_g_value (col5) = sum of shortest paths = sum_dist
+# No "solved" column: infer from solution_cost > 0
 parse_lns_csv() {
-    local csv=$1
-    if [[ -f "$csv" ]]; then
-        local soc=$(tail -1 "$csv" | cut -d',' -f2)
-        local sdist=$(tail -1 "$csv" | cut -d',' -f5)
-        local solved=$(tail -1 "$csv" | cut -d',' -f19)
+    local f=$1
+    if [[ -f "$f" ]]; then
+        local soc=$(tail -1 "$f" | cut -d',' -f2)
+        local sdist=$(tail -1 "$f" | cut -d',' -f5)
+        local solved=$(echo "$soc" | awk '{print ($1+0 > 0) ? 1 : 0}')
         local sod=$(echo "$soc $sdist" | awk '{printf "%.0f", $1 - $2}')
         echo "$soc,$sod,$solved"
     else
@@ -151,7 +154,7 @@ for MAP_NAME in Berlin ost003d dense random NewCity; do
             # --- MAPF-LNS ---
             $LNS -m "$MAP_F" -a "$SCEN_FILE" -o "${OUT_BASE}_lns" \
                 -k $k -t $TIME -s 0 2>/dev/null
-            res=$(parse_lns_csv "${OUT_BASE}_lns.csv")
+            res=$(parse_lns_csv "${OUT_BASE}_lns")
             echo "$k,$scen_num,MAPF-LNS,$res" >> "$OUT_CSV"
 
             # --- BALANCE UCB1 ---
