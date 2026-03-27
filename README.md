@@ -1,78 +1,108 @@
-# DyMAB: Adaptive neighbourhood selection for MAPF via non-stationary bandits
+# DyMAB: Adaptive Neighbourhood Selection for MAPF via Non-Stationary Bandits
 
-DyMAB, a novel anytime algorithm for MAPF problems that integrates non-stationary (dynamic) multi-armed bandit (MAB) framework into Adaptive Large Neighbourhood Search (ALNS). Using a windowed Queue of size W to track recent rewards, DyMAB efficiently adapts neighbourhood selection at each step, ensuring that the most effective heuristic is used.
+> 🎉 **Accepted for publication in the [Journal of Artificial Intelligence Research (JAIR)](https://www.jair.org/), Special Track on MAPF.**
 
-We have implemented 2 versions of DyMAB tailored for Non-sationnary MAB : DyMAB($\alpha$-UCB) and DyMAB($\epsilon$-Greedy)
+DyMAB is a novel anytime algorithm for Multi-Agent Path Finding (MAPF) that integrates a non-stationary Multi-Armed Bandit (MAB) framework into Adaptive Large Neighbourhood Search (ALNS). Using a sliding window of size *W* to track recent rewards, DyMAB efficiently adapts neighbourhood selection at each step, ensuring that the most effective destroy heuristic is used at the right time.
 
+Two policies are implemented:
+- **DyMAB(α-UCB)** — sliding-window upper confidence bound with logarithmic decay
+- **DyMAB(ε-Greedy)** — sliding-window ε-greedy with logarithmic decay
 
+The framework combines three orthogonal destroy heuristics:
+- **H_rand** — random neighbourhood selection
+- **H_sync** — synchronised random walk targeting delayed agents
+- **H_entr** — entropy-guided walk targeting spatially congested regions
 
-The code require `Python 3.10` and external C++ libraries [`BOOST 1.81.0`](https://www.boost.org/) and [`Eigen 3.3`](https://eigen.tuxfamily.org/), and [`CMake`](https://cmake.org)
+---
 
-## Installation procedure
+## Requirements
 
-1. Clone the reposotory  to for example:  ```~/git```
-```
-mkdir -p ${HOME}/git
-cd ${HOME}/git && git clone <repository's link>
-```
-2. Move to project directory and install requirements.txt
-```
-cd ${HOME}/dymab
-```
-3. Then build the project
-```
+- C++17 compiler
+- [`Boost 1.81.0`](https://www.boost.org/)
+- [`Eigen 3.3`](https://eigen.tuxfamily.org/)
+- [`CMake`](https://cmake.org)
+- Python 3.10+ (for plotting scripts)
+
+---
+
+## Build
+
+```bash
 cmake -DCMAKE_BUILD_TYPE=RELEASE .
-make
+make -j$(nproc)
 ```
+
+---
 
 ## Run DyMAB
-To run the code, we will use  MAPF instances from the MAPF benchmark (https://movingai.com/benchmarks/mapf/index.html). In particular, the format of the scen files is explained here: https://movingai.com/benchmarks/formats.html.
 
-```
-./dymab -m Berlin_1_256.map -a Berlin_1_256-random-1.scen -o test -k 500 -t 60 --outputPaths=paths.txt --banditAlgo=AlphaUCB --neighborCandidateSizes=5 --seed=0 --alphaUCB=10000 --decayWindow=100 --lambdaDecay=10 --initialEpsilon=0.5
-```
-| Tab                        | Description                                                                    |
-| :---                       | :---:                                                                          |
-| m                          | the map file from the MAPF benchmark                                           |
-| a                          | the scenario file                                                              |
-| o                          | the output file name                                                           |
-| k                          | the number of agents                                                           |
-| t                          | the time limit                                                                 |
-| outputPaths                | the output file that contains the paths                                        |
-| banditAlgo                 | the MAB algorithm used(DyMAB($\alpha$-UCB) and DyMAB($\epsilon$-Greedy))       |
-| neighborCandidateSizes     | the number of neighborhood size                                   |
-| seed                       | the random seed                                                                |
-| alphaUCB                   | exploration parameter for DyMAB($\alpha$-UCB) policy                           |
-| decayWindow                | Capacity of the sliding window                                                 |
-| lambdaDecay                | Decay rate                                                                     |
-| initialEpsilon             | Initial exploration rate for the DyMAB($\epsilon$-Greedy) policy               |
+MAPF instances from the [Moving AI Lab benchmark](https://movingai.com/benchmarks/mapf/index.html).
 
-
-## Experiments reproduction
-
-You can run the experiments with the following command:
+### DyMAB(α-UCB)
+```bash
+./dymab -m maps/Berlin/Berlin_1_256.map \
+        -a maps/Berlin/Berlin_1_256.map-scen-random/Berlin_1_256-random-1.scen \
+        -o output -k 500 -t 60 \
+        --outputPaths=paths.txt \
+        --banditAlgo=AlphaUCB \
+        --neighborCandidateSizes=5 \
+        --seed=0 \
+        --alphaUCB=10000 \
+        --decayWindow=100 \
+        --lambdaDecay=10
 ```
-./run_sum_delay_vs_number_agents.sh 
-./run_sum_delay_vs_windows.sh
-./run_sum_delay_vs_neighborhoodsize.sh
-./run_neighborhood_vs_number_agents.sh
+
+### DyMAB(ε-Greedy)
+```bash
+./dymab -m maps/Berlin/Berlin_1_256.map \
+        -a maps/Berlin/Berlin_1_256.map-scen-random/Berlin_1_256-random-1.scen \
+        -o output -k 500 -t 60 \
+        --outputPaths=paths.txt \
+        --banditAlgo=EpsilonGreedy \
+        --neighborCandidateSizes=5 \
+        --seed=0 \
+        --initialEpsilon=0.5 \
+        --decayWindow=100 \
+        --lambdaDecay=0.01
 ```
+
+### Key parameters
+
+| Parameter              | Description                                                        |
+| :--------------------- | :----------------------------------------------------------------- |
+| `-m`                   | Map file (`.map` format from Moving AI benchmark)                  |
+| `-a`                   | Scenario file (`.scen`)                                            |
+| `-o`                   | Output file prefix                                                 |
+| `-k`                   | Number of agents                                                   |
+| `-t`                   | Time budget (seconds)                                              |
+| `--outputPaths`        | File to write solution paths                                       |
+| `--banditAlgo`         | Policy: `AlphaUCB`, `EpsilonGreedy`, or `Random`                  |
+| `--neighborCandidateSizes` | Number of neighbourhood size candidates (default: 5)          |
+| `--seed`               | Random seed                                                        |
+| `--alphaUCB`           | Exploration parameter α for DyMAB(α-UCB) (default: 10000)         |
+| `--initialEpsilon`     | Initial ε for DyMAB(ε-Greedy) (default: 0.5)                      |
+| `--decayWindow`        | Sliding window size W (default: 100)                               |
+| `--lambdaDecay`        | Decay rate λ (default: 10 for α-UCB, 0.01 for ε-Greedy)           |
+
+---
+
+---
 
 ## Credits
 
-The software is mainly based on code developed by T. Phan and al. in [Balance](https://github.com/thomyphan/anytime-mapf).
+DyMAB builds on and extends:
+- [BALANCE](https://github.com/thomyphan/anytime-mapf) — T. Phan et al., AAAI 2024
+- [MAPF-LNS2](https://github.com/Jiaoyang-Li/MAPF-LNS2) — J. Li et al., AAAI 2022
+- [MAPF-LNS](https://github.com/Jiaoyang-Li/MAPF-LNS) — J. Li et al., IJCAI 2021
 
+DyMAB is released under the MIT License. See `LICENSE` for details.
 
-DyMAB is released under MiT License. See license.txt for further details.
+---
 
 ## References
 
-- [1] T. Phan et al. *"Adaptive Anytime Multi-Agent Path Finding using Bandit-Based Large Neighborhood Search"*. AAAI 2024.
-- [2] J. Li et al. *"MAPF-LNS2: Fast Repairing for Multi-Agent Path Finding via Large Neighborhood Search"*. AAAI 2022.
-- [3] J. Li et al. *"MAPF-LNS: Anytime Multi-Agent Path Finding via Large Neighborhood Search"*.  IJCAI 2021.
-- [4] A. Gravier et al. *"On Upper-Confidence Bound Policies for Non-Stationary Bandit Problems"*.  HAL 2008.
-
-
-
-
-
+- [1] A. Sow et al. *"Adaptive Neighbourhood Selection for MAPF via Non-Stationary Bandits"*. **Journal of Artificial Intelligence Research (JAIR)**, accepted 2025.
+- [2] T. Phan et al. *"Adaptive Anytime Multi-Agent Path Finding using Bandit-Based Large Neighborhood Search"*. AAAI 2024.
+- [3] J. Li et al. *"MAPF-LNS2: Fast Repairing for Multi-Agent Path Finding via Large Neighborhood Search"*. AAAI 2022.
+- [4] J. Li et al. *"MAPF-LNS: Anytime Multi-Agent Path Finding via Large Neighborhood Search"*. IJCAI 2021.
+- [5] A. Gravier et al. *"On Upper-Confidence Bound Policies for Non-Stationary Bandit Problems"*. HAL 2008.

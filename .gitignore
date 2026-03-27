@@ -1,0 +1,30 @@
+# Build artifacts
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+dymab
+
+# Paper & review documents (managed in Overleaf)
+*.tex
+
+# Experiment scripts & plots (local use only)
+*.sh
+*.py
+*.png
+*.csv
+
+# Output files
+*.txt
+paths.txt
+reward_log.csv
+
+# Loose map/scenario files in root
+*.map
+*.scen
+*.log
+
+# Misc
+__pycache__/
+*.pyc

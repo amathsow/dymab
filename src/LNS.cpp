@@ -207,22 +207,23 @@ bool LNS::run()
                 value /= neighbor.agents.size();
             }
             // Log per-iteration reward per heuristic for non-stationarity analysis
-            {
-                static std::ofstream reward_log;
-                static bool header_written = false;
-                if (!reward_log.is_open())
-                    reward_log.open("reward_log.csv");
-                if (!header_written)
-                {
-                    reward_log << "iteration,heuristic,reward\n";
-                    header_written = true;
-                }
-                const char* heuristic_names[] = {"H_sync", "H_entr", "H_rand"};
-                int h_idx = heuristicBanditStats.banditIndex;
-                reward_log << iteration_stats.size() << ","
-                           << (h_idx >= 0 && h_idx < 3 ? heuristic_names[h_idx] : "unknown") << ","
-                           << value << "\n";
-            }
+            // (uncomment to reproduce Experiment 0 / reward_nonstationarity figure)
+            // {
+            //     static std::ofstream reward_log;
+            //     static bool header_written = false;
+            //     if (!reward_log.is_open())
+            //         reward_log.open("reward_log.csv");
+            //     if (!header_written)
+            //     {
+            //         reward_log << "iteration,heuristic,reward\n";
+            //         header_written = true;
+            //     }
+            //     const char* heuristic_names[] = {"H_sync", "H_entr", "H_rand"};
+            //     int h_idx = heuristicBanditStats.banditIndex;
+            //     reward_log << iteration_stats.size() << ","
+            //                << (h_idx >= 0 && h_idx < 3 ? heuristic_names[h_idx] : "unknown") << ","
+            //                << value << "\n";
+            // }
             updateDestroyAndNeighborhoodWeights(value, condition);
         }
         runtime = ((fsec)(Time::now() - start_time)).count();
@@ -875,20 +876,12 @@ bool LNS::generateNeighborByHotspots() {
     int initial_agent = agent_entropies[selected_idx].first;
     selected_agents.insert(initial_agent);
 
-    // Start walk from the most congested location on the agent's path
-    // (argmax location entropy) rather than path[0] which is typically empty.
-    const auto& apath = agents[initial_agent].path;
-    int upperbound    = (int)apath.size() - 1;
-    int best_start_loc = apath[0].location;
-    int best_start_t   = 0;
-    double best_ent    = -1.0;
-    for (int t = 0; t < upperbound; t++) {
-        double ent = calculateLocationEntropy(apath[t].location, t);
-        if (ent > best_ent) { best_ent = ent; best_start_loc = apath[t].location; best_start_t = t; }
-    }
+    // Original: start walk from path[0] at timestep 0 (as in the paper)
+    if (agents[initial_agent].path.empty()) return false;
+    int upperbound = (int)agents[initial_agent].path.size() - 1;
 
-    randomWalkWithEntropy(initial_agent, best_start_loc,
-                         best_start_t, selected_agents, neighbor_size,
+    randomWalkWithEntropy(initial_agent, agents[initial_agent].path[0].location,
+                         0, selected_agents, neighbor_size,
                          upperbound);
 
     if (selected_agents.size() < 2)
@@ -916,9 +909,11 @@ void LNS::randomWalkWithEntropy(int agent_id, int start_location, int start_time
         next_locs.push_back(loc);
         
         vector<pair<int, double>> location_scores;
+        if (agents[agent_id].path_planner == nullptr) break;
         for (int next_loc : next_locs) {
             double entropy = calculateLocationEntropy(next_loc, t + 1);
-            double h_val = agents[agent_id].path_planner->my_heuristic[next_loc];
+            double h_val = (next_loc < (int)agents[agent_id].path_planner->my_heuristic.size())
+                           ? agents[agent_id].path_planner->my_heuristic[next_loc] : 0.0;
             double score = entropy * (1.0 / (1.0 + h_val));
             location_scores.push_back(make_pair(next_loc, score));
         }
@@ -929,7 +924,8 @@ void LNS::randomWalkWithEntropy(int agent_id, int start_location, int start_time
         bool moved = false;
         for (const auto& loc_score : location_scores) {
             int next_loc = loc_score.first;
-            int next_h_val = agents[agent_id].path_planner->my_heuristic[next_loc];
+            int next_h_val = (next_loc < (int)agents[agent_id].path_planner->my_heuristic.size())
+                             ? agents[agent_id].path_planner->my_heuristic[next_loc] : 0;
             
             if (t + 1 + next_h_val < upperbound) {
                 path_table.getConflictingAgents(agent_id, conflicting_agents, 

@@ -1,3 +1,0 @@
-/home/amath/Downloads/MAPF-LNS-master/CMakeFiles/lns.dir
-/home/amath/Downloads/MAPF-LNS-master/CMakeFiles/edit_cache.dir
-/home/amath/Downloads/MAPF-LNS-master/CMakeFiles/rebuild_cache.dir
