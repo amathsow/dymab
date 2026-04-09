@@ -28,3 +28,4 @@ reward_log.csv
 # Misc
 __pycache__/
 *.pyc
+.DS_Store
