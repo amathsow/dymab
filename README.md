@@ -1,6 +1,6 @@
 # DyMAB: Adaptive Neighbourhood Selection for MAPF via Non-Stationary Bandits
 
-> 🎉 **Accepted for publication in the [Journal of Artificial Intelligence Research (JAIR)](https://www.jair.org/), Special Track on MAPF.**
+> **Accepted for publication in the [Journal of Artificial Intelligence Research (JAIR)](https://www.jair.org/), Special Track on MAPF.**
 
 DyMAB is a novel anytime algorithm for Multi-Agent Path Finding (MAPF) that integrates a non-stationary Multi-Armed Bandit (MAB) framework into Adaptive Large Neighbourhood Search (ALNS). Using a sliding window of size *W* to track recent rewards, DyMAB efficiently adapts neighbourhood selection at each step, ensuring that the most effective destroy heuristic is used at the right time.
 

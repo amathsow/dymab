@@ -80,8 +80,8 @@ void BasicLNS::sampleDestroyHeuristicAndNeighborhoodSize()
     selected_neighbor = sampleDestroyHeuristic(&heuristicBanditStats);
     if (numberOfNeighborhoodSizeCandidates > 0) {
         neighbor_arm_index = sampleDestroyHeuristic(neighborhoodBanditStats[selected_neighbor]);
-        neighbor_size = 1 << (neighbor_arm_index + 5);
-        //std::cout << "neighbor size: " << neighbor_size << std::endl;
+        neighbor_size = 1 << (neighbor_arm_index + numberOfNeighborhoodSizeCandidates);
+       
     }
 }
 

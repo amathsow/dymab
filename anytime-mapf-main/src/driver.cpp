@@ -36,7 +36,7 @@ int main(int argc, char** argv)
         ("initLNS", po::value<bool>()->default_value(true),
              "use LNS to find initial solutions if the initial sovler fails")
         ("neighborSize", po::value<int>()->default_value(8), "Size of the neighborhood")
-        ("neighborCandidateSizes", po::value<int>()->default_value(1), "Number of possible neighborhood sizes (bandit adaptation)")
+        ("neighborCandidateSizes", po::value<int>()->default_value(5), "Number of possible neighborhood sizes (bandit adaptation)")
         ("maxIterations", po::value<int>()->default_value(0), "maximum number of iterations")
         ("initAlgo", po::value<string>()->default_value("PP"),
                 "MAPF algorithm for finding the initial solution (EECBS, PP, PPS, CBS, PIBT, winPIBT)")
