@@ -34,7 +34,7 @@ int main(int argc, char** argv)
         ("initLNS", po::value<bool>()->default_value(true),
              "use LNS to find initial solutions if the initial solver fails")
         ("neighborSize", po::value<int>()->default_value(8), "Size of the neighborhood")
-        ("neighborCandidateSizes", po::value<int>()->default_value(1), "Number of possible neighborhood sizes (bandit adaptation)")
+        ("neighborCandidateSizes", po::value<int>()->default_value(5), "Number of possible neighborhood sizes (bandit adaptation)")
         ("maxIterations", po::value<int>()->default_value(100000000), "maximum number of iterations")
         ("alphaUCB", po::value<double>()->default_value(10000), "parameter alpha of UCB")
         ("initialEpsilon", po::value<double>()->default_value(0.5), "Initial epsilon greedy")
@@ -45,7 +45,7 @@ int main(int argc, char** argv)
         ("replanAlgo", po::value<std::string>()->default_value("PP"),
                 "MAPF algorithm for replanning (EECBS, CBS, PP)")
         ("destroyStrategy", po::value<std::string>()->default_value("Adaptive"),
-                "Heuristics for finding subgroups (Random, RandomWalk, Hotspots, Adaptive)")
+                "Heuristics for finding subgroups (Random, RandomWalk, Hotspots, Adaptive)") // Hostspots correspont to Entropy-based neighborhood
         ("pibtWindow", po::value<int>()->default_value(5),
              "window size for winPIBT")
         ("winPibtSoftmode", po::value<bool>()->default_value(true),
